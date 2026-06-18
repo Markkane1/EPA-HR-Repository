@@ -7,7 +7,7 @@ export function useGetOffice(id: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
+  const fetchOffice = () => {
     if (!id) return;
     let mounted = true;
     setLoading(true);
@@ -16,7 +16,16 @@ export function useGetOffice(id: string) {
       .catch(err => mounted && setError(err instanceof Error ? err : new Error(String(err))))
       .finally(() => mounted && setLoading(false));
     return () => { mounted = false; };
+  };
+
+  useEffect(() => {
+    const cleanup = fetchOffice();
+    return cleanup;
   }, [id]);
 
-  return { data, loading, error };
+  const mutate = () => {
+    fetchOffice();
+  };
+
+  return { data, loading, error, mutate };
 }

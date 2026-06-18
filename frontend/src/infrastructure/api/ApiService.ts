@@ -104,6 +104,55 @@ export class ApiService implements IApiService {
     const { data } = await apiClient.post(`/offices/${officeId}/positions`, positionData);
     return data;
   }
+
+  async updatePosition(officeId: string, positionId: string, positionData: any): Promise<any> {
+    const { data } = await apiClient.put(`/offices/${officeId}/positions/${positionId}`, positionData);
+    return data;
+  }
+
+  async deletePosition(officeId: string, positionId: string): Promise<void> {
+    await apiClient.delete(`/offices/${officeId}/positions/${positionId}`);
+  }
+
+  async getRoles() {
+    const { data } = await apiClient.get('/roles');
+    return data;
+  }
+
+  async createRole(roleData: { name: string; permissions: string[] }) {
+    const { data } = await apiClient.post('/roles', roleData);
+    return data;
+  }
+
+  async updateRole(id: string, roleData: { name?: string; permissions?: string[] }) {
+    const { data } = await apiClient.put(`/roles/${id}`, roleData);
+    return data;
+  }
+
+  async deleteRole(id: string) {
+    const { data } = await apiClient.delete(`/roles/${id}`);
+    return data;
+  }
+
+  async getUsers() {
+    const { data } = await apiClient.get('/users');
+    return data;
+  }
+
+  async createUser(userData: any) {
+    const { data } = await apiClient.post('/users', userData);
+    return data;
+  }
+
+  async updateUser(id: string, userData: any) {
+    const { data } = await apiClient.put(`/users/${id}`, userData);
+    return data;
+  }
+
+  async deleteUser(id: string) {
+    const { data } = await apiClient.delete(`/users/${id}`);
+    return data;
+  }
 }
 
 export const apiService = new ApiService();

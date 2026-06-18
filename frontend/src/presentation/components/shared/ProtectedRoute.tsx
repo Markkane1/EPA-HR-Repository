@@ -1,15 +1,19 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
 
-export const ProtectedRoute = ({ requireAdmin = false }: { requireAdmin?: boolean }) => {
-  const { isAuthenticated, isAdmin } = useAuthContext();
+interface ProtectedRouteProps {
+  requiredPermission?: string;
+}
+
+export const ProtectedRoute = ({ requiredPermission }: ProtectedRouteProps = {}) => {
+  const { isAuthenticated, hasPermission } = useAuthContext();
   const location = useLocation();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requireAdmin && !isAdmin) {
+  if (requiredPermission && !hasPermission(requiredPermission)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

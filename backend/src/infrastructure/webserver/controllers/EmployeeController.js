@@ -6,6 +6,7 @@ import { GetAllEmployees } from '../../../application/usecases/GetAllEmployees.j
 import { GetEmployeeById } from '../../../application/usecases/GetEmployeeById.js';
 import { CreateEmployee } from '../../../application/usecases/CreateEmployee.js';
 import { UpdateEmployee } from '../../../application/usecases/UpdateEmployee.js';
+import { DeleteEmployee } from '../../../application/usecases/DeleteEmployee.js';
 
 export class EmployeeController {
   async index(req, res) {
@@ -59,6 +60,19 @@ export class EmployeeController {
       const useCase = new UpdateEmployee(new EmployeeRepository());
       const employee = await useCase.execute(req.params.id, req.body);
       res.json(employee);
+    } catch (error) {
+      if (error.message === 'Employee not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const useCase = new DeleteEmployee(new EmployeeRepository());
+      await useCase.execute(req.params.id);
+      res.status(204).send();
     } catch (error) {
       if (error.message === 'Employee not found') {
         return res.status(404).json({ error: error.message });

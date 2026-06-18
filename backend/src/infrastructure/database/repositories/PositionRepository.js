@@ -19,6 +19,11 @@ export class PositionRepository extends IPositionRepository {
     return docs.map(doc => this._mapToDomain(doc));
   }
 
+  async findById(id) {
+    const doc = await PositionModel.findOne({ id }).lean();
+    return this._mapToDomain(doc);
+  }
+
   async save(position) {
     const doc = await PositionModel.findOneAndUpdate(
       { id: position.id },
@@ -32,5 +37,14 @@ export class PositionRepository extends IPositionRepository {
       { new: true, upsert: true }
     ).lean();
     return this._mapToDomain(doc);
+  }
+
+  async update(id, data) {
+    const doc = await PositionModel.findOneAndUpdate({ id }, data, { new: true }).lean();
+    return this._mapToDomain(doc);
+  }
+
+  async delete(id) {
+    await PositionModel.findOneAndDelete({ id });
   }
 }

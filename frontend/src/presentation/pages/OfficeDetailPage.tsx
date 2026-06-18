@@ -1,15 +1,19 @@
 import { useParams, Link } from 'react-router-dom';
 import { useGetOffice } from '../../application/usecases/useGetOffice';
 import { useCreatePosition } from '../../application/usecases/useCreatePosition';
+import { useDeletePosition } from '../../application/usecases/useDeletePosition';
 import { useAuthContext } from '../contexts/AuthContext';
 import { PageHeader } from '../components/shared/PageHeader';
 import { LoadingSpinner } from '../components/shared/LoadingSpinner';
 import { EmptyState } from '../components/shared/EmptyState';
 import { BSBadge } from '../components/shared/BSBadge';
-import { MapPin, PlusCircle, Loader2 } from 'lucide-react';
+import { MapPin, PlusCircle, Loader2, Edit, Trash2, CheckCircle2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useState } from 'react';
+import { PositionModal } from '../components/offices/PositionModal';
+import { ConfirmModal } from '../components/shared/ConfirmModal';
 
 const positionSchema = z.object({
   title: z.string().min(3, 'Title is required'),
@@ -24,6 +28,12 @@ export const OfficeDetailPage = () => {
   const { data, loading: getLoading, error, mutate } = useGetOffice(id!);
   const { isAdmin } = useAuthContext();
   const { createPosition, isLoading: isCreating } = useCreatePosition();
+  const { deletePosition, isLoading: isDeleting } = useDeletePosition();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [positionToEdit, setPositionToEdit] = useState<any>(null);
+  const [positionToDelete, setPositionToDelete] = useState<string | null>(null);
+  const [createSuccess, setCreateSuccess] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<PositionFormData>({
     resolver: zodResolver(positionSchema)
@@ -33,8 +43,31 @@ export const OfficeDetailPage = () => {
     const success = await createPosition(id!, formData);
     if (success) {
       reset();
+      setCreateSuccess(true);
       mutate(); // refresh data
+      setTimeout(() => setCreateSuccess(false), 3000);
     }
+  };
+
+  const handleDeletePositionClick = (positionId: string) => {
+    setPositionToDelete(positionId);
+  };
+
+  const confirmDeletePosition = async () => {
+    if (!positionToDelete) return;
+    const success = await deletePosition(id!, positionToDelete);
+    if (success) {
+      mutate();
+      setPositionToDelete(null);
+    } else {
+      alert('Failed to delete position. Ensure all seats are vacant.');
+      setPositionToDelete(null);
+    }
+  };
+
+  const handleEditPosition = (position: any) => {
+    setPositionToEdit(position);
+    setIsModalOpen(true);
   };
 
   if (getLoading) return <LoadingSpinner />;
@@ -74,6 +107,7 @@ export const OfficeDetailPage = () => {
           <div className="flex items-center gap-2 mb-4">
             <PlusCircle className="w-5 h-5 text-blue-600" />
             <h3 className="text-lg font-semibold text-blue-900">Add New Sanctioned Post</h3>
+            {createSuccess && <span className="ml-auto flex items-center gap-1 text-sm font-medium text-green-600"><CheckCircle2 className="w-4 h-4"/> Success!</span>}
           </div>
           <form onSubmit={handleSubmit(onAddPosition)} className="flex items-start gap-4">
             <div className="flex-1">
@@ -118,11 +152,34 @@ export const OfficeDetailPage = () => {
         {sortedPositions.map(pos => {
           const posSeats = seats.filter(s => s.positionId === pos.id);
           return (
-            <div key={pos.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <div className="flex items-center gap-4 mb-6 border-b border-gray-50 pb-4">
-                <BSBadge bs={pos.basicScale || 0} />
-                <h3 className="text-lg font-semibold text-gray-900">{pos.title}</h3>
-                <span className="text-sm text-gray-500">({pos.totalSeats} sanctioned seats)</span>
+            <div key={pos.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative group">
+              <div className="flex items-center justify-between mb-6 border-b border-gray-50 pb-4">
+                <div className="flex items-center gap-4">
+                  <BSBadge bs={pos.basicScale || 0} />
+                  <h3 className="text-lg font-semibold text-gray-900">{pos.title}</h3>
+                  <span className="text-sm text-gray-500">({pos.totalSeats} sanctioned seats)</span>
+                </div>
+                {isAdmin && (
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleEditPosition(pos); }}
+                      className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Edit Position"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeletePositionClick(pos.id); }}
+                      disabled={isDeleting}
+                      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                      title="Delete Position"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {posSeats.map(seat => {
@@ -174,6 +231,29 @@ export const OfficeDetailPage = () => {
             </ul>
           </div>
         </div>
+      )}
+
+      {isAdmin && (
+        <PositionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          officeId={id!}
+          positionToEdit={positionToEdit}
+          onSuccess={mutate}
+        />
+      )}
+
+      {isAdmin && (
+        <ConfirmModal
+          isOpen={!!positionToDelete}
+          onClose={() => setPositionToDelete(null)}
+          onConfirm={confirmDeletePosition}
+          title="Delete Position"
+          message="Are you sure you want to completely delete this position? This will delete all vacant seats associated with it. This action cannot be undone."
+          confirmText="Delete Position"
+          isDestructive={true}
+          isLoading={isDeleting}
+        />
       )}
     </div>
   );

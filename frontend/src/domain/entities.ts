@@ -1,10 +1,44 @@
+export interface Role {
+  id: string;
+  name: string;
+  permissions: string[];
+  isSystemRole: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'viewer';
+  roleId?: string | null;
+  role?: Role | null;
   officeId?: string | null;
+  status?: string;
 }
+
+// All available permissions in the system (mirror of backend)
+export const ALL_PERMISSIONS = [
+  'dashboard.read',
+  'employees.read',
+  'employees.write',
+  'offices.read',
+  'offices.write',
+  'users.read',
+  'users.write',
+  'roles.write',
+] as const;
+
+export type Permission = typeof ALL_PERMISSIONS[number];
+
+export const PERMISSION_LABELS: Record<Permission, string> = {
+  'dashboard.read': 'View Dashboard',
+  'employees.read': 'View Employees',
+  'employees.write': 'Manage Employees',
+  'offices.read': 'View Offices',
+  'offices.write': 'Manage Offices',
+  'users.read': 'View Users',
+  'users.write': 'Manage Users',
+  'roles.write': 'Manage Roles',
+};
 
 export interface Employee {
   id: string;

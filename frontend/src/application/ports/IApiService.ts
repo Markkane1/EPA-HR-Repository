@@ -19,4 +19,6 @@ export interface IApiService {
   createOffice(officeData: any): Promise<Office>;
   updateOffice(id: string, officeData: any): Promise<Office>;
   createPosition(officeId: string, positionData: any): Promise<any>;
+  updatePosition(officeId: string, positionId: string, positionData: any): Promise<any>;
+  deletePosition(officeId: string, positionId: string): Promise<void>;
 }

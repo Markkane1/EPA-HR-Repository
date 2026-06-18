@@ -22,12 +22,33 @@ export class LoginUser {
       throw new Error('Invalid credentials');
     }
 
+    const role = user.role || null;
+    const permissions = role?.permissions || [];
+    const isSystemAdmin = role?.isSystemRole === true;
+
     const token = jwt.sign(
-      { userId: user.id, role: user.role, officeId: user.officeId },
+      {
+        userId: user.id,
+        roleId: user.roleId,
+        roleName: role?.name || null,
+        permissions,
+        isSystemAdmin,
+        officeId: user.officeId
+      },
       this.jwtSecret,
       { expiresIn: '1d' }
     );
 
-    return { token, user: { id: user.id, name: user.name, email: user.email, role: user.role, officeId: user.officeId } };
+    return {
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        roleId: user.roleId,
+        role: role,
+        officeId: user.officeId
+      }
+    };
   }
 }

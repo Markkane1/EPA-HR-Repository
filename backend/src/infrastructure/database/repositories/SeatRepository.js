@@ -48,4 +48,8 @@ export class SeatRepository extends ISeatRepository {
     await SeatModel.bulkWrite(operations);
     return seats;
   }
+
+  async deleteMany(ids) {
+    await SeatModel.deleteMany({ id: { $in: ids } });
+  }
 }

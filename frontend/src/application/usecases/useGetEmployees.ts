@@ -7,7 +7,7 @@ export function useGetEmployees(filters: any = {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
+  const fetchEmployees = () => {
     let mounted = true;
     setLoading(true);
     apiService.getEmployees(filters)
@@ -15,7 +15,16 @@ export function useGetEmployees(filters: any = {}) {
       .catch(err => mounted && setError(err instanceof Error ? err : new Error(String(err))))
       .finally(() => mounted && setLoading(false));
     return () => { mounted = false; };
+  };
+
+  useEffect(() => {
+    const cleanup = fetchEmployees();
+    return cleanup;
   }, [JSON.stringify(filters)]);
 
-  return { data, loading, error };
+  const mutate = () => {
+    fetchEmployees();
+  };
+
+  return { data, loading, error, mutate };
 }

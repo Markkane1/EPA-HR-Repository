@@ -41,13 +41,24 @@ export function useAuth() {
     await apiService.register(userData);
   };
 
+  const hasPermission = (permission: string): boolean => {
+    if (!currentUser?.role) return false;
+    // System admin role has all permissions
+    if (currentUser.role.isSystemRole && currentUser.role.name === 'Admin') return true;
+    return currentUser.role.permissions?.includes(permission) ?? false;
+  };
+
+  const isAdmin = currentUser?.role?.isSystemRole === true && currentUser?.role?.name === 'Admin';
+
   return {
     currentUser,
     isAuthenticated: !!currentUser,
-    isAdmin: currentUser?.role === 'admin',
+    isAdmin,
+    hasPermission,
     isLoading,
     login,
     logout,
-    register
+    register,
+    refetchUser: fetchMe,
   };
 }

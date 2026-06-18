@@ -6,7 +6,7 @@ export class RegisterUser {
     this.userRepo = userRepo;
   }
 
-  async execute({ name, email, password, role, officeId }) {
+  async execute({ name, email, password, roleId, officeId }) {
     const existingUser = await this.userRepo.findByEmail(email);
     if (existingUser) {
       throw new Error('Email already exists');
@@ -19,7 +19,7 @@ export class RegisterUser {
       name,
       email,
       passwordHash,
-      role,
+      roleId: roleId || null,
       officeId,
       status: 'active'
     });

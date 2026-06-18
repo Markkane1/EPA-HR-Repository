@@ -7,6 +7,8 @@ import { PostingRepository } from '../../database/repositories/PostingRepository
 import { GetOfficeById } from '../../../application/usecases/GetOfficeById.js';
 import { CreateOffice } from '../../../application/usecases/CreateOffice.js';
 import { CreatePosition } from '../../../application/usecases/CreatePosition.js';
+import { UpdatePosition } from '../../../application/usecases/UpdatePosition.js';
+import { DeletePosition } from '../../../application/usecases/DeletePosition.js';
 import { UpdateOffice } from '../../../application/usecases/UpdateOffice.js';
 
 export class OfficeController {
@@ -86,6 +88,32 @@ export class OfficeController {
         return res.status(400).json({ error: error.message });
       }
       res.status(500).json({ error: error.message });
+    }
+  }
+
+  async updatePosition(req, res) {
+    try {
+      const useCase = new UpdatePosition(new PositionRepository(), new SeatRepository());
+      const position = await useCase.execute(req.params.positionId, req.body);
+      res.json(position);
+    } catch (error) {
+      if (error.message === 'Position not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async deletePosition(req, res) {
+    try {
+      const useCase = new DeletePosition(new PositionRepository(), new SeatRepository());
+      await useCase.execute(req.params.positionId);
+      res.status(204).end();
+    } catch (error) {
+      if (error.message === 'Position not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(400).json({ error: error.message });
     }
   }
 }

@@ -34,6 +34,10 @@ export class EmployeeRepository extends IEmployeeRepository {
       query.basicScale = filters.basicScale;
     }
 
+    if (filters.status && filters.status !== 'all') {
+      query.status = filters.status;
+    }
+
     let employeeIdsSet = null;
 
     const intersectIds = (ids) => {
@@ -83,5 +87,12 @@ export class EmployeeRepository extends IEmployeeRepository {
   async update(id, data) {
     const doc = await EmployeeModel.findOneAndUpdate({ id }, data, { new: true }).lean();
     return this._mapToDomain(doc);
+  }
+
+  async delete(id) {
+    await EmployeeModel.findOneAndDelete({ id });
+    await PostingModel.deleteMany({ employeeId: id });
+    await AttachmentModel.deleteMany({ employeeId: id });
+    return true;
   }
 }
