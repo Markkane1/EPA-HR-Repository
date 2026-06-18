@@ -15,7 +15,8 @@ const apiRequest = async <T>(path: string, options?: RequestInit): Promise<T> =>
     throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorBody}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  return data as T;
 };
 
 export const getOffices = () => apiRequest<import('../domain/entities').Office[]>('/api/offices');

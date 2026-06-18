@@ -26,8 +26,8 @@ interface OfficeSectionProps {
   employees: Employee[];
   postings: Posting[];
   attachments: Attachment[];
-  onAddOffice: (office: Omit<Office, 'id'>) => void;
-  onAddPositionAndSeats: (officeId: string, title: string, scale: string, seatsCount: number) => void;
+  onAddOffice: (office: Omit<Office, 'id'>) => void | Promise<void>;
+  onAddPositionAndSeats: (officeId: string, title: string, scale: string, seatsCount: number) => void | Promise<void>;
   onSelectEmployee: (employeeId: string) => void;
   activeOfficeId?: string;
   onSetActiveOfficeId?: (id: string) => void;
