@@ -1,33 +1,43 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { MainLayout } from './presentation/layouts/MainLayout';
+import { DashboardPage } from './presentation/pages/DashboardPage';
+import { EmployeeDirectoryPage } from './presentation/pages/EmployeeDirectoryPage';
+import { EmployeeProfilePage } from './presentation/pages/EmployeeProfilePage';
+import { OfficeListPage } from './presentation/pages/OfficeListPage';
+import { OfficeDetailPage } from './presentation/pages/OfficeDetailPage';
+import { RecordTransferPage } from './presentation/pages/RecordTransferPage';
+import { RecordAttachmentPage } from './presentation/pages/RecordAttachmentPage';
+import { LoginPage } from './presentation/pages/LoginPage';
+import { UnauthorizedPage } from './presentation/pages/UnauthorizedPage';
+import { AuthProvider } from './presentation/contexts/AuthContext';
+import { ProtectedRoute } from './presentation/components/shared/ProtectedRoute';
 
-import { AdminLayout } from './presentation/layouts/AdminLayout';
-import { AuthLayout } from './presentation/layouts/AuthLayout';
-import { Login } from './presentation/pages/auth/Login';
-import { Register } from './presentation/pages/auth/Register';
-import { DashboardHome } from './presentation/pages/admin/DashboardHome';
-import { OfficeList } from './presentation/pages/admin/offices/OfficeList';
-import { OfficeDetail } from './presentation/pages/admin/offices/OfficeDetail';
-
-export default function App() {
+function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Default Redirect for now */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        
-        {/* Auth Routes */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Route>
-
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<DashboardHome />} />
-          <Route path="offices" element={<OfficeList />} />
-          <Route path="offices/:id" element={<OfficeDetail />} />
-        </Route>
-      </Routes>
-    </Router>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          
+          <Route element={<ProtectedRoute />}>
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/employees" element={<EmployeeDirectoryPage />} />
+              <Route path="/employees/:id" element={<EmployeeProfilePage />} />
+              <Route path="/offices" element={<OfficeListPage />} />
+              <Route path="/offices/:id" element={<OfficeDetailPage />} />
+              
+              <Route element={<ProtectedRoute requireAdmin={true} />}>
+                <Route path="/transfers/new" element={<RecordTransferPage />} />
+                <Route path="/attachments/new" element={<RecordAttachmentPage />} />
+              </Route>
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
+
+export default App;
