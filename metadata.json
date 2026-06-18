@@ -1,0 +1,6 @@
+{
+  "name": "EPA Punjab Personnel Repository",
+  "description": "Personnel repository, seat allocations, posting histories, and temporary attachment tracking system for the Environmental Protection Agency, Punjab, Pakistan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
