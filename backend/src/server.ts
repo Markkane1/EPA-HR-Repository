@@ -2,13 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDatabase } from './config/database';
-import officeRoutes from './routes/offices';
-import positionRoutes from './routes/positions';
-import seatRoutes from './routes/seats';
-import employeeRoutes from './routes/employees';
-import postingRoutes from './routes/postings';
-import attachmentRoutes from './routes/attachments';
-import bootstrapRoutes from './routes/bootstrap';
+import officeRoutes from './infrastructure/webserver/routes/offices';
+import positionRoutes from './infrastructure/webserver/routes/positions';
+import seatRoutes from './infrastructure/webserver/routes/seats';
+import employeeRoutes from './infrastructure/webserver/routes/employees';
+import postingRoutes from './infrastructure/webserver/routes/postings';
+import attachmentRoutes from './infrastructure/webserver/routes/attachments';
+import bootstrapRoutes from './infrastructure/webserver/routes/bootstrap';
 
 dotenv.config();
 

@@ -1,5 +1,5 @@
 import { Users2, Building2, Briefcase, FileText } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../ui/components/Card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/Card';
 
 export function DashboardHome() {
   const stats = [

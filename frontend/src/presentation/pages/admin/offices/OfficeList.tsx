@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Building2, MapPin, MoreVertical, Edit2, Trash2 } from 'lucide-react';
-import { Button } from '../../../ui/components/Button';
-import { Input } from '../../../ui/components/Input';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../ui/components/Table';
+import { Button } from '../../../components/Button';
+import { Input } from '../../../components/Input';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../components/Table';
 
 export function OfficeList() {
   const navigate = useNavigate();

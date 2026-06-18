@@ -4,9 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { ArrowLeft, Save, Building2, MapPin } from 'lucide-react';
-import { Button } from '../../../ui/components/Button';
-import { Input } from '../../../ui/components/Input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../ui/components/Card';
+import { Button } from '../../../components/Button';
+import { Input } from '../../../components/Input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../components/Card';
 
 const officeSchema = z.object({
   name: z.string().min(3, 'Office name must be at least 3 characters'),

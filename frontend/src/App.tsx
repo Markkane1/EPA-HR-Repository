@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-import { AdminLayout } from './layouts/AdminLayout';
-import { AuthLayout } from './layouts/AuthLayout';
-import { Login } from './pages/auth/Login';
-import { Register } from './pages/auth/Register';
-import { DashboardHome } from './pages/admin/DashboardHome';
-import { OfficeList } from './pages/admin/offices/OfficeList';
-import { OfficeDetail } from './pages/admin/offices/OfficeDetail';
+import { AdminLayout } from './presentation/layouts/AdminLayout';
+import { AuthLayout } from './presentation/layouts/AuthLayout';
+import { Login } from './presentation/pages/auth/Login';
+import { Register } from './presentation/pages/auth/Register';
+import { DashboardHome } from './presentation/pages/admin/DashboardHome';
+import { OfficeList } from './presentation/pages/admin/offices/OfficeList';
+import { OfficeDetail } from './presentation/pages/admin/offices/OfficeDetail';
 
 export default function App() {
   return (

@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Mail, Lock, User } from 'lucide-react';
-import { Button } from '../../ui/components/Button';
-import { Input } from '../../ui/components/Input';
+import { Button } from '../../components/Button';
+import { Input } from '../../components/Input';
 
 const registerSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
