@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  PersonnelState,
   Office,
   Position,
   Seat,
@@ -9,58 +8,120 @@ import {
   Attachment,
 } from '../../domain/entities';
 import {
-  buildInitialPersonnelState,
-  createOffice,
-  createPositionAndSeats,
-  transferEmployee,
-  attachEmployee,
-  endAttachment,
-  onboardEmployee,
-  retireEmployee,
-  restoreFactoryState,
-} from '../../useCases/personnelUseCases';
-import {
-  saveStateToLocalStorage,
-  clearLocalStorageState,
-} from '../../data/persistence';
+  getOffices,
+  getPositions,
+  getSeats,
+  getEmployees,
+  getPostings,
+  getAttachments,
+  createOffice as apiCreateOffice,
+  createPosition as apiCreatePosition,
+  createSeat as apiCreateSeat,
+  createEmployee as apiCreateEmployee,
+  createPosting as apiCreatePosting,
+  createAttachment as apiCreateAttachment,
+  updateEmployee as apiUpdateEmployee,
+  updatePosting as apiUpdatePosting,
+  updateAttachment as apiUpdateAttachment,
+} from '../../api/personnelApi';
 
 export const usePersonnelAppState = () => {
-  const [state, setState] = useState<PersonnelState>(() => buildInitialPersonnelState());
+  const [offices, setOffices] = useState<Office[]>([]);
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [seats, setSeats] = useState<Seat[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [postings, setPostings] = useState<Posting[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshAll = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const [officesData, positionsData, seatsData, employeesData, postingsData, attachmentsData] = await Promise.all([
+        getOffices(),
+        getPositions(),
+        getSeats(),
+        getEmployees(),
+        getPostings(),
+        getAttachments(),
+      ]);
+
+      setOffices(officesData);
+      setPositions(positionsData);
+      setSeats(seatsData);
+      setEmployees(employeesData);
+      setPostings(postingsData);
+      setAttachments(attachmentsData);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error fetching personnel data';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const initialState = buildInitialPersonnelState();
-    setState(initialState);
+    refreshAll();
   }, []);
 
-  const persistState = (nextState: PersonnelState) => {
-    setState(nextState);
-    saveStateToLocalStorage(nextState);
+  const handleCreateOffice = async (newOffice: Omit<Office, 'id'>) => {
+    await apiCreateOffice(newOffice);
+    await refreshAll();
   };
 
-  const handleCreateOffice = (newOffice: Omit<Office, 'id'>) => {
-    persistState(createOffice(state, newOffice));
-  };
-
-  const handleCreatePositionAndSeats = (
+  const handleCreatePositionAndSeats = async (
     officeId: string,
     title: string,
     scale: string,
     seatsCount: number
   ) => {
-    persistState(createPositionAndSeats(state, officeId, title, scale, seatsCount));
+    const position = await apiCreatePosition({ officeId, title, scale, allocatedSeatsCount: seatsCount });
+    const positionId = (position as any)._id || (position as any).id;
+
+    const seatPromises = Array.from({ length: seatsCount }, (_, i) =>
+      apiCreateSeat({
+        positionId,
+        name: seatsCount === 1 ? 'Designated Seat' : `Seat - ${String.fromCharCode(65 + i)}`,
+      })
+    );
+
+    await Promise.all(seatPromises);
+    await refreshAll();
   };
 
-  const handleTransferEmployee = (
+  const handleTransferEmployee = async (
     employeeId: string,
     targetSeatId: string,
     effectiveDate: string,
     orderNumber: string,
     remarks?: string
   ) => {
-    persistState(transferEmployee(state, employeeId, targetSeatId, effectiveDate, orderNumber, remarks));
+    const activePost = postings.find((post) => post.employeeId === employeeId && post.effectiveTo === null);
+
+    if (activePost) {
+      await apiUpdatePosting((activePost as any)._id || (activePost as any).id, {
+        ...activePost,
+        effectiveTo: effectiveDate,
+      });
+    }
+
+    await apiCreatePosting({
+      employeeId,
+      seatId: targetSeatId,
+      effectiveFrom: effectiveDate,
+      effectiveTo: null,
+      orderNumber,
+      remarks,
+    });
+
+    await apiUpdateEmployee(employeeId, { status: 'active' });
+    await refreshAll();
   };
 
-  const handleAttachEmployee = (
+  const handleAttachEmployee = async (
     employeeId: string,
     targetOfficeId: string,
     effectiveFrom: string,
@@ -68,34 +129,80 @@ export const usePersonnelAppState = () => {
     reason: string,
     effectiveTo?: string | null
   ) => {
-    persistState(attachEmployee(state, employeeId, targetOfficeId, effectiveFrom, orderNumber, reason, effectiveTo));
+    await apiCreateAttachment({
+      employeeId,
+      targetOfficeId,
+      effectiveFrom,
+      effectiveTo: effectiveTo || null,
+      orderNumber,
+      reason,
+    });
+
+    await refreshAll();
   };
 
-  const handleEndAttachment = (attachmentId: string, effectiveTo: string) => {
-    persistState(endAttachment(state, attachmentId, effectiveTo));
+  const handleEndAttachment = async (attachmentId: string, effectiveTo: string) => {
+    const currentAttachment = attachments.find((attachment) => attachment.id === attachmentId || (attachment as any)._id === attachmentId);
+    if (!currentAttachment) throw new Error('Attachment not found');
+
+    const id = (currentAttachment as any)._id || currentAttachment.id;
+    await apiUpdateAttachment(id, { ...currentAttachment, effectiveTo });
+    await refreshAll();
   };
 
-  const handleOnboardEmployee = (
+  const handleOnboardEmployee = async (
     employee: Omit<Employee, 'id'>,
     initialSeatId: string | null,
     orderNumber: string,
     effectiveFrom?: string
   ) => {
-    persistState(onboardEmployee(state, employee, initialSeatId, orderNumber, effectiveFrom));
+    const createdEmployee = await apiCreateEmployee(employee);
+    const employeeId = (createdEmployee as any)._id || (createdEmployee as any).id;
+
+    if (initialSeatId) {
+      await apiCreatePosting({
+        employeeId,
+        seatId: initialSeatId,
+        effectiveFrom: effectiveFrom || employee.doj,
+        effectiveTo: null,
+        orderNumber,
+      });
+    }
+
+    await refreshAll();
   };
 
-  const handleRetireEmployee = (employeeId: string, retireDate: string, orderNumber: string) => {
-    persistState(retireEmployee(state, employeeId, retireDate, orderNumber));
-  };
+  const handleRetireEmployee = async (employeeId: string, retireDate: string, orderNumber: string) => {
+    const activePost = postings.find((post) => post.employeeId === employeeId && post.effectiveTo === null);
+    if (activePost) {
+      await apiUpdatePosting((activePost as any)._id || (activePost as any).id, {
+        ...activePost,
+        effectiveTo: retireDate,
+      });
+    }
 
-  const handleRestoreFactoryData = () => {
-    clearLocalStorageState();
-    const factoryState = restoreFactoryState();
-    setState(factoryState);
+    const activeAttachments = attachments.filter((attachment) => attachment.employeeId === employeeId && attachment.effectiveTo === null);
+    await Promise.all(
+      activeAttachments.map((attachment) => {
+        const id = (attachment as any)._id || attachment.id;
+        return apiUpdateAttachment(id, { ...attachment, effectiveTo: retireDate });
+      })
+    );
+
+    await apiUpdateEmployee(employeeId, { status: 'retired' });
+    await refreshAll();
   };
 
   return {
-    ...state,
+    offices,
+    positions,
+    seats,
+    employees,
+    postings,
+    attachments,
+    loading,
+    error,
+    refreshAll,
     handleCreateOffice,
     handleCreatePositionAndSeats,
     handleTransferEmployee,
@@ -103,6 +210,5 @@ export const usePersonnelAppState = () => {
     handleEndAttachment,
     handleOnboardEmployee,
     handleRetireEmployee,
-    handleRestoreFactoryData,
   };
 };
