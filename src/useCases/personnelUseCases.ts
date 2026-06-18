@@ -97,8 +97,8 @@ export const transferEmployee = (
     remarks: remarks || undefined,
   };
 
-  const updatedEmployees = state.employees.map((employee) =>
-    employee.id === employeeId ? { ...employee, status: 'active' } : employee
+  const updatedEmployees: Employee[] = state.employees.map((employee) =>
+    employee.id === employeeId ? { ...employee, status: 'active' as const } : employee
   );
 
   return {
@@ -187,8 +187,8 @@ export const retireEmployee = (
   retireDate: string,
   orderNumber: string
 ): PersonnelState => {
-  const updatedEmployees = state.employees.map((employee) =>
-    employee.id === employeeId ? { ...employee, status: 'retired' } : employee
+  const updatedEmployees: Employee[] = state.employees.map((employee) =>
+    employee.id === employeeId ? { ...employee, status: 'retired' as const } : employee
   );
 
   const updatedPostings = state.postings.map((posting) =>

@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 const apiRequest = async <T>(path: string, options?: RequestInit): Promise<T> => {
@@ -16,19 +18,19 @@ const apiRequest = async <T>(path: string, options?: RequestInit): Promise<T> =>
   return response.json();
 };
 
-export const getOffices = () => apiRequest('/api/offices');
-export const getPositions = () => apiRequest('/api/positions');
-export const getSeats = () => apiRequest('/api/seats');
-export const getEmployees = () => apiRequest('/api/employees');
-export const getPostings = () => apiRequest('/api/postings');
-export const getAttachments = () => apiRequest('/api/attachments');
+export const getOffices = () => apiRequest<import('../domain/entities').Office[]>('/api/offices');
+export const getPositions = () => apiRequest<import('../domain/entities').Position[]>('/api/positions');
+export const getSeats = () => apiRequest<import('../domain/entities').Seat[]>('/api/seats');
+export const getEmployees = () => apiRequest<import('../domain/entities').Employee[]>('/api/employees');
+export const getPostings = () => apiRequest<import('../domain/entities').Posting[]>('/api/postings');
+export const getAttachments = () => apiRequest<import('../domain/entities').Attachment[]>('/api/attachments');
 
-export const createOffice = (payload: object) => apiRequest('/api/offices', { method: 'POST', body: JSON.stringify(payload) });
-export const createPosition = (payload: object) => apiRequest('/api/positions', { method: 'POST', body: JSON.stringify(payload) });
-export const createSeat = (payload: object) => apiRequest('/api/seats', { method: 'POST', body: JSON.stringify(payload) });
-export const createEmployee = (payload: object) => apiRequest('/api/employees', { method: 'POST', body: JSON.stringify(payload) });
-export const createPosting = (payload: object) => apiRequest('/api/postings', { method: 'POST', body: JSON.stringify(payload) });
-export const createAttachment = (payload: object) => apiRequest('/api/attachments', { method: 'POST', body: JSON.stringify(payload) });
-export const updateEmployee = (id: string, payload: object) => apiRequest(`/api/employees/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
-export const updatePosting = (id: string, payload: object) => apiRequest(`/api/postings/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
-export const updateAttachment = (id: string, payload: object) => apiRequest(`/api/attachments/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+export const createOffice = (payload: object) => apiRequest<import('../domain/entities').Office>('/api/offices', { method: 'POST', body: JSON.stringify(payload) });
+export const createPosition = (payload: object) => apiRequest<import('../domain/entities').Position>('/api/positions', { method: 'POST', body: JSON.stringify(payload) });
+export const createSeat = (payload: object) => apiRequest<import('../domain/entities').Seat>('/api/seats', { method: 'POST', body: JSON.stringify(payload) });
+export const createEmployee = (payload: object) => apiRequest<import('../domain/entities').Employee>('/api/employees', { method: 'POST', body: JSON.stringify(payload) });
+export const createPosting = (payload: object) => apiRequest<import('../domain/entities').Posting>('/api/postings', { method: 'POST', body: JSON.stringify(payload) });
+export const createAttachment = (payload: object) => apiRequest<import('../domain/entities').Attachment>('/api/attachments', { method: 'POST', body: JSON.stringify(payload) });
+export const updateEmployee = (id: string, payload: object) => apiRequest<import('../domain/entities').Employee>(`/api/employees/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+export const updatePosting = (id: string, payload: object) => apiRequest<import('../domain/entities').Posting>(`/api/postings/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+export const updateAttachment = (id: string, payload: object) => apiRequest<import('../domain/entities').Attachment>(`/api/attachments/${id}`, { method: 'PUT', body: JSON.stringify(payload) });

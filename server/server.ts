@@ -8,6 +8,7 @@ import seatRoutes from './routes/seats';
 import employeeRoutes from './routes/employees';
 import postingRoutes from './routes/postings';
 import attachmentRoutes from './routes/attachments';
+import bootstrapRoutes from './routes/bootstrap';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use('/api/seats', seatRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/postings', postingRoutes);
 app.use('/api/attachments', attachmentRoutes);
+app.use('/api/bootstrap', bootstrapRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });

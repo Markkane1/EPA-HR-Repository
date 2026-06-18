@@ -34,7 +34,6 @@ export default function App() {
     handleEndAttachment,
     handleOnboardEmployee,
     handleRetireEmployee,
-    handleRestoreFactoryData,
   } = usePersonnelAppState();
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -43,13 +42,10 @@ export default function App() {
   const [preFilledEmployeeId, setPreFilledEmployeeId] = useState<string | null>(null);
 
   const clearRepositoryData = () => {
-    if (window.confirm("Are you sure you want to restore the Punjab EPA personnel database to factory mock values? All custom postings, attachments, and onboarded servants will be reverted.")) {
-      handleRestoreFactoryData();
-      setSelectedEmployeeId(null);
-      setPreFilledEmployeeId(null);
-      setActiveOfficeId('dashboard');
-      setActiveTab('dashboard');
-    }
+    setSelectedEmployeeId(null);
+    setPreFilledEmployeeId(null);
+    setActiveOfficeId('dashboard');
+    setActiveTab('dashboard');
   };
 
   return (
@@ -87,7 +83,7 @@ export default function App() {
               onClick={clearRepositoryData}
               className="text-white hover:bg-rose-700 bg-red-900 border border-red-800 font-bold font-sans text-xxxxs px-3.5 py-2 rounded-lg transition cursor-pointer"
             >
-              🔄 Restore Factory Mock Data
+              🔄 Reset View
             </button>
             <span className="text-xxs font-bold text-blue-200/80 font-mono tracking-wider bg-blue-900 px-3.5 py-2 rounded-lg border border-blue-800">
               📅 Local Clock: 2026-06-18
@@ -231,7 +227,7 @@ export default function App() {
               employees={employees}
               postings={postings}
               attachments={attachments}
-              onAddOffice={handleAddOffice}
+              onAddOffice={handleCreateOffice}
               onAddPositionAndSeats={handleCreatePositionAndSeats}
               onSelectEmployee={(empId) => {
                 setSelectedEmployeeId(empId);
@@ -304,7 +300,7 @@ export default function App() {
             <p className="mt-1 text-slate-400">Civil Servants Act, 1974 Personnel Database System Ledger Control.</p>
           </div>
           <div className="text-right text-slate-400 font-mono text-[9px]">
-            <span>© {new Date().getFullYear()} Government of the Punjab. Secure Local Storage Persistence Active.</span>
+            <span>© {new Date().getFullYear()} Government of the Punjab. API-backed personnel database active.</span>
           </div>
         </div>
       </footer>
