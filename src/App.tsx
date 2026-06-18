@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { LegacyApp } from './pages/LegacyApp';
 
 import { AdminLayout } from './layouts/AdminLayout';
 import { AuthLayout } from './layouts/AuthLayout';
@@ -13,11 +12,8 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Legacy App Route - Temporary to ensure nothing breaks */}
-        <Route path="/legacy" element={<LegacyApp />} />
-        
         {/* Default Redirect for now */}
-        <Route path="/" element={<Navigate to="/legacy" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         
         {/* Auth Routes */}
         <Route element={<AuthLayout />}>

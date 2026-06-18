@@ -7,7 +7,6 @@ import { ArrowLeft, Save, Building2, MapPin } from 'lucide-react';
 import { Button } from '../../../ui/components/Button';
 import { Input } from '../../../ui/components/Input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../ui/components/Card';
-import { usePersonnelAppState } from '../../../ui/hooks/usePersonnelAppState';
 
 const officeSchema = z.object({
   name: z.string().min(3, 'Office name must be at least 3 characters'),
@@ -20,10 +19,10 @@ type OfficeForm = z.infer<typeof officeSchema>;
 export function OfficeDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { offices, handleCreateOffice } = usePersonnelAppState();
   
+  // Removed legacy hook dependency
   const isNew = id === 'new';
-  const existingOffice = !isNew ? offices.find(o => o.id === id) : null;
+  const existingOffice = null; // Decoupled from legacy mockData
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<OfficeForm>({
     resolver: zodResolver(officeSchema),
@@ -48,14 +47,9 @@ export function OfficeDetail() {
     await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API network delay
     
     if (isNew) {
-      handleCreateOffice({
-        name: data.name,
-        type: data.type,
-        location: data.location,
-      });
+      console.log('Create office API call', data);
     } else {
-      // TODO: Implement update logic in usePersonnelAppState if needed
-      console.log('Update office', id, data);
+      console.log('Update office API call', id, data);
     }
     
     navigate('/admin/offices');

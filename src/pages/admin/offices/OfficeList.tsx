@@ -4,11 +4,11 @@ import { Plus, Search, Building2, MapPin, MoreVertical, Edit2, Trash2 } from 'lu
 import { Button } from '../../../ui/components/Button';
 import { Input } from '../../../ui/components/Input';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../ui/components/Table';
-import { usePersonnelAppState } from '../../../ui/hooks/usePersonnelAppState';
 
 export function OfficeList() {
   const navigate = useNavigate();
-  const { offices } = usePersonnelAppState();
+  // Using an empty state to decouple from legacy mock data
+  const [offices] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredOffices = offices.filter(o => 
