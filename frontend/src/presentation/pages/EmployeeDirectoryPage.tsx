@@ -10,15 +10,15 @@ import { StatusBadge } from '../components/shared/StatusBadge';
 import { BSBadge } from '../components/shared/BSBadge';
 import { EmployeeModal } from '../components/employees/EmployeeModal';
 import { useAuthContext } from '../contexts/AuthContext';
-import { UserPlus, Search, Edit, LayoutGrid, List, User, Briefcase, Phone, Filter } from 'lucide-react';
-import { EmployeeListItem } from '../../domain/entities';
 
 export const EmployeeDirectoryPage = () => {
   const { isAdmin } = useAuthContext();
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [page, setPage] = useState(1);
-  const itemsPerPage = 12;
+
+  // Items per page differs by view
+  const itemsPerPage = viewMode === 'grid' ? 12 : 20;
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,7 +28,7 @@ export const EmployeeDirectoryPage = () => {
 
   // Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [employeeToEdit, setEmployeeToEdit] = useState<EmployeeListItem | null>(null);
+  const [employeeToEdit, setEmployeeToEdit] = useState<any | null>(null);
 
   // Debounce search
   useEffect(() => {
@@ -39,13 +39,16 @@ export const EmployeeDirectoryPage = () => {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
+  // Reset page when filters or view change
+  useEffect(() => { setPage(1); }, [statusFilter, bsFilter, viewMode]);
+
   const { data, loading, error, mutate } = useGetEmployees({ 
     search: debouncedSearch,
     status: statusFilter !== 'all' ? statusFilter : undefined,
     basicScale: bsFilter !== 'all' ? parseInt(bsFilter) : undefined
   });
 
-  const handleEditClick = (employee: EmployeeListItem, e: React.MouseEvent) => {
+  const handleEditClick = (employee: any, e: React.MouseEvent) => {
     e.preventDefault();
     setEmployeeToEdit(employee);
     setIsModalOpen(true);
@@ -59,211 +62,205 @@ export const EmployeeDirectoryPage = () => {
   if (loading && !data?.length) return <LoadingSpinner />;
   if (error) return <EmptyState message={error.message} />;
 
-  const paginatedEmployees = viewMode === 'grid' && data
-    ? data.slice((page - 1) * itemsPerPage, page * itemsPerPage)
-    : data || [];
+  const allEmployees = data || [];
+  const totalItems = allEmployees.length;
+  const paginatedEmployees = allEmployees.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
-    <div className="space-y-6">
+    <>
       <PageHeader 
         title="Employee Directory" 
         actionButton={
-          <div className="flex items-center gap-3">
-            <div className="flex bg-white rounded-lg border border-gray-200 p-1 shadow-sm">
+          <div className="flex items-center gap-2">
+            <div className="flex shadow-sm mr-3 rounded-[0.35rem] overflow-hidden">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`px-3 py-1.5 text-sm transition-colors border ${viewMode === 'grid' ? 'bg-[#4e73df] text-white border-[#4e73df]' : 'bg-white text-[#858796] border-[#e3e6f0] hover:bg-gray-50'}`}
                 title="Grid View"
               >
-                <LayoutGrid className="w-5 h-5" />
+                <i className="fas fa-th-large"></i>
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`px-3 py-1.5 text-sm transition-colors border-y border-r ${viewMode === 'list' ? 'bg-[#4e73df] text-white border-[#4e73df] border-l border-l-[#4e73df] -ml-px' : 'bg-white text-[#858796] border-[#e3e6f0] border-l-0 hover:bg-gray-50'}`}
                 title="List View"
               >
-                <List className="w-5 h-5" />
+                <i className="fas fa-list"></i>
               </button>
             </div>
             {isAdmin && (
               <button 
                 onClick={handleAddClick} 
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-block px-3 py-1.5 text-sm font-normal text-white bg-[#4e73df] hover:bg-[#2e59d9] rounded-[0.35rem] shadow-sm transition-colors"
               >
-                <UserPlus className="w-4 h-4" /> Add Employee
+                <i className="fas fa-user-plus fa-sm text-white/50 mr-2"></i> Add Employee
               </button>
             )}
           </div>
         }
       />
 
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder="Search by Name, CNIC, or Father's Name..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Status Filter */}
-          <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 transition-colors ${
-            statusFilter !== 'all'
-              ? 'bg-blue-50 border-blue-300 text-blue-700'
-              : 'bg-gray-50 border-gray-200 text-gray-700'
-          }`}>
-            <Filter className={`w-4 h-4 flex-shrink-0 ${statusFilter !== 'all' ? 'text-blue-500' : 'text-gray-400'}`} />
-            <select
-              className="bg-transparent text-sm font-medium outline-none cursor-pointer"
-              value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            >
-              <option value="all">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="retired">Retired</option>
-              <option value="transferred">Transferred</option>
-            </select>
-            {statusFilter !== 'all' && (
-              <button
-                onClick={() => { setStatusFilter('all'); setPage(1); }}
-                className="ml-1 text-blue-400 hover:text-blue-700 transition-colors leading-none"
-                title="Clear status filter"
+      {/* Filters Card */}
+      <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">
+        <div className="p-4">
+          <div className="flex flex-wrap items-center justify-between -mx-2">
+            <div className="w-full md:w-1/2 px-2 mb-3 md:mb-0">
+              <div className="relative flex w-full flex-wrap items-stretch">
+                <div className="flex -mr-px">
+                  <span className="flex items-center px-4 py-1.5 text-sm bg-gray-100 border-0 rounded-l-[0.35rem]"><i className="fas fa-search text-[#858796]"></i></span>
+                </div>
+                <input 
+                  type="text" 
+                  className="flex-auto w-[1%] bg-gray-100 border-0 rounded-r-[0.35rem] px-4 py-1.5 text-sm text-[#6e707e] outline-none focus:ring-0 focus:bg-white focus:border-[#bac8f3] focus:ring-[rgba(78,115,223,0.25)] transition-colors" 
+                  placeholder="Search by Name, CNIC, or Father's Name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            <div className="w-full md:w-1/2 px-2 flex items-center md:justify-end flex-wrap gap-2">
+              {/* Status Filter */}
+              <select
+                className="w-auto h-[calc(1.5em+0.5rem+2px)] px-2 py-1 text-sm font-normal text-[#6e707e] bg-white bg-clip-padding border border-[#d1d3e2] rounded-[0.2rem] outline-none focus:border-[#bac8f3] focus:ring focus:ring-[rgba(78,115,223,0.25)] transition-colors mr-2"
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
               >
-                ✕
-              </button>
-            )}
-          </div>
+                <option value="all">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="retired">Retired</option>
+                <option value="transferred">Transferred</option>
+              </select>
 
-          {/* BS Filter */}
-          <div className={`flex items-center gap-2 border rounded-lg px-3 py-2 transition-colors ${
-            bsFilter !== 'all'
-              ? 'bg-blue-50 border-blue-300 text-blue-700'
-              : 'bg-gray-50 border-gray-200 text-gray-700'
-          }`}>
-            <span className="text-sm font-medium text-gray-500">BS:</span>
-            <select
-              className="bg-transparent text-sm font-medium outline-none cursor-pointer w-16"
-              value={bsFilter}
-              onChange={(e) => { setBsFilter(e.target.value); setPage(1); }}
-            >
-              <option value="all">All</option>
-              {[...Array(22)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>{i + 1}</option>
-              ))}
-            </select>
-            {bsFilter !== 'all' && (
-              <button
-                onClick={() => { setBsFilter('all'); setPage(1); }}
-                className="ml-1 text-blue-400 hover:text-blue-700 transition-colors leading-none"
-                title="Clear BS filter"
-              >
-                ✕
-              </button>
-            )}
-          </div>
+              {/* BS Filter */}
+              <div className="relative flex items-stretch w-auto mr-2">
+                <div className="flex -mr-px">
+                  <span className="flex items-center px-3 py-1 text-sm bg-[#eaecf4] border border-[#d1d3e2] text-[#6e707e] rounded-l-[0.2rem]">BS</span>
+                </div>
+                <select
+                  className="flex-auto w-[1%] h-[calc(1.5em+0.5rem+2px)] px-2 py-1 text-sm font-normal text-[#6e707e] bg-white bg-clip-padding border border-[#d1d3e2] rounded-r-[0.2rem] outline-none focus:border-[#bac8f3] focus:ring focus:ring-[rgba(78,115,223,0.25)] transition-colors"
+                  value={bsFilter}
+                  onChange={(e) => { setBsFilter(e.target.value); setPage(1); }}
+                >
+                  <option value="all">All</option>
+                  {[...Array(22)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  ))}
+                </select>
+              </div>
 
-          {/* Active filter count badge */}
-          {(statusFilter !== 'all' || bsFilter !== 'all') && (
-            <span className="text-xs bg-blue-600 text-white font-semibold px-2 py-1 rounded-full">
-              {[statusFilter !== 'all', bsFilter !== 'all'].filter(Boolean).length} filter{[statusFilter !== 'all', bsFilter !== 'all'].filter(Boolean).length > 1 ? 's' : ''} active
-            </span>
-          )}
+              {(statusFilter !== 'all' || bsFilter !== 'all') && (
+                <button
+                  className="inline-block px-2 py-1 text-sm font-normal text-white bg-[#e74a3b] hover:bg-[#e02d1b] rounded-[0.2rem] transition-colors ml-2"
+                  onClick={() => { setStatusFilter('all'); setBsFilter('all'); setPage(1); }}
+                  title="Clear Filters"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
       {viewMode === 'grid' ? (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {paginatedEmployees.map(emp => {
-              const initials = emp.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-              return (
-                <Link key={emp.id} to={`/employees/${emp.id}`} className="block">
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow p-6 flex flex-col h-full relative group">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+          {paginatedEmployees.map(emp => {
+            const initials = emp.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+            return (
+              <div key={emp.id} className="h-full">
+                <Link to={`/employees/${emp.id}`} className="no-underline h-full block">
+                  <div className="bg-white rounded-[0.35rem] shadow-sm hover:shadow-[0_0.5rem_1rem_rgba(0,0,0,0.15)] transition-shadow h-full border-b-[0.25rem] border-[#4e73df] py-2 relative group">
                     {isAdmin && (
                       <button 
                         onClick={(e) => handleEditClick(emp, e)}
-                        className="absolute top-4 right-4 p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        className="inline-block px-2 py-1 text-sm bg-white hover:bg-gray-100 text-[#4e73df] rounded shadow-sm transition-colors absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 focus:opacity-100"
                         title="Edit Employee"
                       >
-                        <Edit className="w-4 h-4" />
+                        <i className="fas fa-edit text-[#4e73df]"></i>
                       </button>
                     )}
-                    <div className="flex flex-col items-center text-center flex-1">
-                      <div className="w-16 h-16 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xl font-bold shadow-inner mb-4">
+                    <div className="p-5 text-center">
+                      <div className="w-16 h-16 rounded-full bg-[#4e73df] text-white shadow-sm flex items-center justify-center text-2xl font-bold mx-auto mb-3">
                         {initials}
                       </div>
-                      <h3 className="font-bold text-gray-900 mb-1 line-clamp-1" title={emp.name}>{emp.name}</h3>
-                      <p className="text-xs text-gray-500 mb-3">{emp.cnic}</p>
+                      <h5 className="font-bold text-gray-900 truncate" title={emp.name}>{emp.name}</h5>
+                      <p className="text-xs text-[#858796] mb-3">{emp.cnic}</p>
                       
-                      <div className="flex gap-2 mb-4">
+                      <div className="mb-3 flex justify-center items-center gap-1">
                         <BSBadge bs={emp.basicScale || 0} />
                         <StatusBadge status={emp.status} />
                       </div>
 
-                      <div className="w-full space-y-2 text-sm text-gray-600 mt-auto pt-4 border-t border-gray-50 text-left">
-                        <div className="flex items-start gap-2">
-                          <Briefcase className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
-                          <span className="line-clamp-2">{emp.currentOffice?.name || 'Unassigned'}</span>
+                      <hr className="my-4 border-[#e3e6f0]" />
+                      <div className="text-left text-xs text-gray-800">
+                        <div className="mb-2 truncate">
+                          <i className="fas fa-briefcase w-4 text-center text-gray-400 mr-1"></i>
+                          {emp.currentOffice?.name || 'Unassigned'}
                         </div>
                         {emp.contactNumber && (
-                          <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-gray-400 shrink-0" />
-                            <span>{emp.contactNumber}</span>
+                          <div className="truncate">
+                            <i className="fas fa-phone w-4 text-center text-gray-400 mr-1"></i>
+                            {emp.contactNumber}
                           </div>
                         )}
                       </div>
                     </div>
                   </div>
                 </Link>
-              );
-            })}
-          </div>
-          {data && data.length > itemsPerPage && (
-            <Pagination 
-              currentPage={page} 
-              totalItems={data.length} 
-              itemsPerPage={itemsPerPage} 
-              onPageChange={setPage} 
-            />
-          )}
+              </div>
+            );
+          })}
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <DataTable 
-            columns={[
-              { key: 'name', label: 'Employee', render: (_, row) => (
-                <div>
-                  <Link to={`/employees/${row.id}`} className="font-semibold text-blue-600 hover:text-blue-800">{row.name}</Link>
-                  <p className="text-xs text-gray-500">{row.cnic}</p>
-                </div>
-              )},
-              { key: 'basicScale', label: 'BS', render: (val) => <BSBadge bs={val || 0} /> },
-              { key: 'currentOffice', label: 'Office', render: (_, row) => row.currentOffice?.name || 'Unassigned' },
-              { key: 'status', label: 'Status', render: (val) => <StatusBadge status={val} /> },
-              { key: 'actions', label: '', render: (_, row) => (
-                <div className="flex items-center gap-3 justify-end">
-                  {isAdmin && (
-                    <button 
-                      onClick={(e) => handleEditClick(row, e)}
-                      className="text-gray-400 hover:text-blue-600 font-medium text-sm flex items-center gap-1"
-                      title="Edit Employee"
-                    >
-                      <Edit className="w-4 h-4" />
-                      <span className="sr-only">Edit</span>
-                    </button>
-                  )}
-                  <Link to={`/employees/${row.id}`} className="text-blue-600 hover:text-blue-800 font-medium text-sm">View Profile</Link>
-                </div>
-              )}
-            ]}
-            data={data || []}
-            pagination={true}
-            itemsPerPage={20}
-          />
+        <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">
+          <div className="p-0">
+            <DataTable 
+              columns={[
+                { key: 'name', label: 'Employee', width: '35%', render: (_, row) => (
+                  <div>
+                    <Link to={`/employees/${row.id}`} className="font-bold text-[#4e73df] block truncate">{row.name}</Link>
+                    <div className="text-sm text-[#858796] mt-1">{row.cnic}</div>
+                  </div>
+                )},
+                { key: 'basicScale', label: 'BS', width: '10%', render: (val) => <BSBadge bs={val || 0} /> },
+                { key: 'currentOffice', label: 'Office', width: '25%', render: (_, row) => (
+                  <span className="truncate block">{row.currentOffice?.name || <span className="text-[#858796] italic">Unassigned</span>}</span>
+                )},
+                { key: 'status', label: 'Status', width: '15%', render: (val) => <StatusBadge status={val} /> },
+                { key: 'actions', label: '', width: '15%', className: 'text-right', render: (_, row) => (
+                  <div className="flex justify-end items-center">
+                    {isAdmin && (
+                      <button 
+                        onClick={(e) => handleEditClick(row, e)}
+                        className="inline-block px-2 py-1 text-sm bg-[#f8f9fc] hover:bg-[#e2e6ea] text-[#4e73df] rounded transition-colors mr-2"
+                        title="Edit Employee"
+                      >
+                        <i className="fas fa-edit text-[#4e73df]"></i>
+                      </button>
+                    )}
+                    <Link to={`/employees/${row.id}`} className="inline-block px-2 py-1 text-sm font-normal text-[#4e73df] border border-[#4e73df] hover:bg-[#4e73df] hover:text-white rounded-[0.35rem] transition-colors">View</Link>
+                  </div>
+                )}
+              ]}
+              data={paginatedEmployees}
+              pagination={false}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Unified Pagination */}
+      {totalItems > 0 && (
+        <div className="bg-white rounded-[0.35rem] shadow-sm mb-6">
+          <div className="p-4 py-2">
+            <Pagination
+              currentPage={page}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setPage}
+            />
+          </div>
         </div>
       )}
 
@@ -275,6 +272,6 @@ export const EmployeeDirectoryPage = () => {
           onSuccess={mutate}
         />
       )}
-    </div>
+    </>
   );
 };

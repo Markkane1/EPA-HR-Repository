@@ -14,7 +14,6 @@ import { DataTable } from '../components/shared/DataTable';
 import { ConfirmModal } from '../components/shared/ConfirmModal';
 import { TransferModal } from '../components/employees/TransferModal';
 import { AttachmentModal } from '../components/employees/AttachmentModal';
-import { User, Phone, Calendar, Briefcase, Paperclip, MapPin, PlusCircle, Edit } from 'lucide-react';
 
 export const EmployeeProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,88 +43,106 @@ export const EmployeeProfilePage = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12">
+    <>
       <PageHeader 
         title="Employee Profile" 
         breadcrumb="Employees / Profile" 
       />
 
       {profile.currentAttachment && (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg shadow-sm">
-          <div className="flex items-center">
-            <Paperclip className="w-5 h-5 text-yellow-600 mr-2" />
-            <p className="text-sm font-medium text-yellow-800">
-              Currently on Attachment at <span className="font-bold">{profile.currentAttachment.officeId}</span> (Order: {profile.currentAttachment.orderNumber || 'N/A'})
-            </p>
-          </div>
+        <div className="bg-[#f6c23e]/10 border-l-[0.25rem] border-[#f6c23e] text-[#858796] p-4 rounded-md mb-6 shadow-sm flex items-center">
+          <i className="fas fa-paperclip text-xl mr-3 text-[#f6c23e]"></i>
+          <span className="font-bold">
+            Currently on Attachment at {profile.currentAttachment.officeId} (Order: {profile.currentAttachment.orderNumber || 'N/A'})
+          </span>
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex gap-6 items-start">
-        <div className="w-24 h-24 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-3xl font-bold shadow-inner">
-          {initials}
-        </div>
-        <div className="flex-1">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>
-              <p className="text-gray-500 font-medium">S/D/W of {profile.fatherName || 'N/A'}</p>
+      <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">
+        <div className="p-5">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+            <div className="flex-shrink-0">
+              <div className="w-20 h-20 rounded-full bg-[#4e73df] text-white flex items-center justify-center shadow-md text-3xl font-bold">
+                {initials}
+              </div>
             </div>
-            <div className="flex gap-2">
-              <BSBadge bs={profile.basicScale || 0} />
-              <StatusBadge status={profile.status} />
-            </div>
-          </div>
+            <div className="flex-1 w-full text-center md:text-left">
+              <div className="flex flex-col md:flex-row justify-between items-center md:items-start mb-4 gap-4">
+                <div>
+                  <h1 className="text-2xl mb-1 text-gray-900 font-bold m-0">{profile.name}</h1>
+                  <p className="text-[#858796] mb-0">S/D/W of {profile.fatherName || 'N/A'}</p>
+                </div>
+                <div className="flex gap-2 justify-center">
+                  <BSBadge bs={profile.basicScale || 0} />
+                  <StatusBadge status={profile.status} />
+                </div>
+              </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-4 gap-x-8 text-sm">
-            <div>
-              <p className="text-gray-400 flex items-center gap-1 mb-1"><User className="w-4 h-4"/> CNIC</p>
-              <p className="font-semibold text-gray-900">{profile.cnic}</p>
-            </div>
-            <div>
-              <p className="text-gray-400 flex items-center gap-1 mb-1"><Phone className="w-4 h-4"/> Contact</p>
-              <p className="font-semibold text-gray-900">{profile.contactNumber || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-gray-400 flex items-center gap-1 mb-1"><Calendar className="w-4 h-4"/> DOB</p>
-              <p className="font-semibold text-gray-900">{profile.dob ? new Date(profile.dob).toLocaleDateString() : 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-gray-400 flex items-center gap-1 mb-1"><Briefcase className="w-4 h-4"/> Joined</p>
-              <p className="font-semibold text-gray-900">{profile.dateOfJoining ? new Date(profile.dateOfJoining).toLocaleDateString() : 'N/A'}</p>
+              <hr className="my-4 border-[#e3e6f0]" />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm text-[#5a5c69]">
+                <div>
+                  <div className="text-[#858796] text-xs uppercase font-bold mb-1">
+                    <i className="fas fa-id-card mr-1"></i> CNIC
+                  </div>
+                  <div className="font-bold">{profile.cnic}</div>
+                </div>
+                <div>
+                  <div className="text-[#858796] text-xs uppercase font-bold mb-1">
+                    <i className="fas fa-phone mr-1"></i> Contact
+                  </div>
+                  <div className="font-bold">{profile.contactNumber || 'N/A'}</div>
+                </div>
+                <div>
+                  <div className="text-[#858796] text-xs uppercase font-bold mb-1">
+                    <i className="fas fa-calendar mr-1"></i> DOB
+                  </div>
+                  <div className="font-bold">{profile.dob ? new Date(profile.dob).toLocaleDateString() : 'N/A'}</div>
+                </div>
+                <div>
+                  <div className="text-[#858796] text-xs uppercase font-bold mb-1">
+                    <i className="fas fa-briefcase mr-1"></i> Joined
+                  </div>
+                  <div className="font-bold">{profile.dateOfJoining ? new Date(profile.dateOfJoining).toLocaleDateString() : 'N/A'}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="border-b border-gray-200">
-          <nav className="flex -mb-px">
-            <button
-              onClick={() => setActiveTab('postings')}
-              className={`w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'postings' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
-            >
-              Posting History
-            </button>
-            <button
-              onClick={() => setActiveTab('attachments')}
-              className={`w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'attachments' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
-            >
-              Attachment History
-            </button>
-          </nav>
+      <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">
+        <div className="px-5 pt-3 border-b border-[#e3e6f0]">
+          <ul className="flex flex-wrap list-none m-0 p-0 border-0">
+            <li>
+              <button 
+                className={`px-4 py-2 border-0 bg-transparent text-[1rem] outline-none transition-colors ${activeTab === 'postings' ? 'font-bold text-[#4e73df] border-b-2 border-[#4e73df]' : 'text-[#858796] hover:text-[#5a5c69]'}`}
+                onClick={() => setActiveTab('postings')}
+              >
+                Posting History
+              </button>
+            </li>
+            <li>
+              <button 
+                className={`px-4 py-2 border-0 bg-transparent text-[1rem] outline-none transition-colors ${activeTab === 'attachments' ? 'font-bold text-[#4e73df] border-b-2 border-[#4e73df]' : 'text-[#858796] hover:text-[#5a5c69]'}`}
+                onClick={() => setActiveTab('attachments')}
+              >
+                Attachment History
+              </button>
+            </li>
+          </ul>
         </div>
         
-        <div className="p-6">
+        <div className="p-5">
           {activeTab === 'postings' ? (
-            <div className="space-y-4">
+            <>
               {isAdmin && (
-                <div className="flex justify-end">
+                <div className="mb-4 text-right">
                   <button 
                     onClick={() => setIsTransferModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 transition-colors text-sm"
+                    className="inline-block px-3 py-1.5 text-sm font-normal text-white bg-[#4e73df] hover:bg-[#2e59d9] rounded-[0.35rem] shadow-sm transition-colors"
                   >
-                    <PlusCircle className="w-4 h-4" /> Record Transfer
+                    <i className="fas fa-plus fa-sm text-white/50 mr-1"></i> Record Transfer
                   </button>
                 </div>
               )}
@@ -134,23 +151,23 @@ export const EmployeeProfilePage = () => {
                 columns={[
                   { key: 'office', label: 'Office', render: (_, row) => row.office?.name || row.officeId },
                   { key: 'effectiveFrom', label: 'From', render: (val) => new Date(val).toLocaleDateString() },
-                  { key: 'effectiveTo', label: 'To', render: (val) => val ? new Date(val).toLocaleDateString() : <span className="text-green-600 font-bold tracking-wider text-xs uppercase">Present</span> },
+                  { key: 'effectiveTo', label: 'To', render: (val) => val ? new Date(val).toLocaleDateString() : <span className="inline-block py-1 px-2 rounded font-bold text-[75%] leading-none text-center whitespace-nowrap bg-[#1cc88a] text-white uppercase">Present</span> },
                   { key: 'orderNumber', label: 'Order No.' },
                   { key: 'remarks', label: 'Remarks' }
                 ]}
                 data={postingHistory || []}
               />
             )}
-            </div>
+            </>
           ) : (
-            <div className="space-y-4">
+            <>
               {isAdmin && (
-                <div className="flex justify-end">
+                <div className="mb-4 text-right">
                   <button 
                     onClick={() => setIsAttachmentModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 transition-colors text-sm"
+                    className="inline-block px-3 py-1.5 text-sm font-normal text-white bg-[#4e73df] hover:bg-[#2e59d9] rounded-[0.35rem] shadow-sm transition-colors"
                   >
-                    <PlusCircle className="w-4 h-4" /> Record Attachment
+                    <i className="fas fa-plus fa-sm text-white/50 mr-1"></i> Record Attachment
                   </button>
                 </div>
               )}
@@ -159,14 +176,14 @@ export const EmployeeProfilePage = () => {
                 columns={[
                   { key: 'officeId', label: 'Attached To' },
                   { key: 'effectiveFrom', label: 'From', render: (val) => new Date(val).toLocaleDateString() },
-                  { key: 'effectiveTo', label: 'To', render: (val) => val ? new Date(val).toLocaleDateString() : <span className="text-green-600 font-bold tracking-wider text-xs uppercase">Present</span> },
+                  { key: 'effectiveTo', label: 'To', render: (val) => val ? new Date(val).toLocaleDateString() : <span className="inline-block py-1 px-2 rounded font-bold text-[75%] leading-none text-center whitespace-nowrap bg-[#1cc88a] text-white uppercase">Present</span> },
                   { key: 'orderNumber', label: 'Order No.' },
                   { key: 'reason', label: 'Reason' },
-                  { key: 'actions', label: '', render: (_, row) => (
+                  { key: 'actions', label: '', className: 'text-right', render: (_, row) => (
                     isAdmin && !row.effectiveTo ? (
                       <button 
                         onClick={() => setAttachmentToEnd(row.id)}
-                        className="text-red-600 hover:text-red-800 text-sm font-medium bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors"
+                        className="inline-block px-2 py-1 text-sm font-normal text-white bg-[#e74a3b] hover:bg-[#e02d1b] rounded-[0.35rem] shadow-sm transition-colors"
                       >
                         End Attachment
                       </button>
@@ -176,7 +193,7 @@ export const EmployeeProfilePage = () => {
                 data={attachmentHistory || []}
               />
             )}
-            </div>
+            </>
           )}
         </div>
       </div>
@@ -207,6 +224,6 @@ export const EmployeeProfilePage = () => {
           />
         </>
       )}
-    </div>
+    </>
   );
 };

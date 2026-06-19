@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import rateLimit from 'express-rate-limit';
 import { connectDatabase } from './config/database';
 import officeRoutes from './infrastructure/webserver/routes/offices.js';
 import employeeRoutes from './infrastructure/webserver/routes/employees.js';
@@ -19,8 +22,33 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 5000;
 
-app.use(cors());
+// Security Middlewares
+app.use(helmet());
+app.use(mongoSanitize());
+
+// Restrict CORS
+const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3000'];
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));
+
 app.use(express.json());
+
+// Global Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+app.use(globalLimiter);
 
 // Global Authentication Middleware
 app.use((req, res, next) => {

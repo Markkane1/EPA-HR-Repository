@@ -4,7 +4,10 @@ import jwt from 'jsonwebtoken';
 export class LoginUser {
   constructor(userRepo, jwtSecret) {
     this.userRepo = userRepo;
-    this.jwtSecret = jwtSecret || process.env.JWT_SECRET || 'fallback_secret';
+    this.jwtSecret = jwtSecret || process.env.JWT_SECRET;
+    if (!this.jwtSecret) {
+      throw new Error('FATAL: JWT_SECRET environment variable is not defined.');
+    }
   }
 
   async execute({ email, password }) {

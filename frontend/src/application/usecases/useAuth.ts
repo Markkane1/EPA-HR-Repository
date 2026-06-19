@@ -27,8 +27,8 @@ export function useAuth() {
   }, [fetchMe]);
 
   const login = async (email: string, password: string) => {
-    const { user } = await apiService.login(email, password);
-    setCurrentUser(user);
+    await apiService.login(email, password); // sets token in localStorage
+    await fetchMe(); // re-fetch from /me to get fully-populated role object
   };
 
   const logout = () => {

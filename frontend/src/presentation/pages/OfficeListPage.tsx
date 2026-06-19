@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useGetDashboardStats } from '../../application/usecases/useGetDashboardStats';
 import { useAuthContext } from '../contexts/AuthContext';
 import { PageHeader } from '../components/shared/PageHeader';
@@ -8,8 +8,6 @@ import { DataTable } from '../components/shared/DataTable';
 import { Pagination } from '../components/shared/Pagination';
 import { OfficeModal } from '../components/offices/OfficeModal';
 import { Link } from 'react-router-dom';
-import { Building, MapPin, LayoutGrid, List, Search, PlusCircle, Edit } from 'lucide-react';
-import { Office } from '../../domain/entities';
 
 export const OfficeListPage = () => {
   const { data, loading, error, mutate } = useGetDashboardStats();
@@ -18,7 +16,7 @@ export const OfficeListPage = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [officeToEdit, setOfficeToEdit] = useState<Office | null>(null);
+  const [officeToEdit, setOfficeToEdit] = useState<any | null>(null);
   const itemsPerPage = 12;
 
   // Simple debounce
@@ -40,7 +38,7 @@ export const OfficeListPage = () => {
     ? filteredOffices.slice((page - 1) * itemsPerPage, page * itemsPerPage)
     : filteredOffices;
 
-  const handleEditClick = (office: Office, e: React.MouseEvent) => {
+  const handleEditClick = (office: any, e: React.MouseEvent) => {
     e.preventDefault();
     setOfficeToEdit(office);
     setIsModalOpen(true);
@@ -52,146 +50,174 @@ export const OfficeListPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <>
       <PageHeader 
         title="Offices Directory" 
         actionButton={
-          <div className="flex items-center gap-3">
-            <div className="flex bg-white rounded-lg border border-gray-200 p-1 shadow-sm">
+          <div className="flex items-center gap-2">
+            <div className="flex shadow-sm mr-3 rounded-[0.35rem] overflow-hidden">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`px-3 py-1.5 text-sm transition-colors border ${viewMode === 'grid' ? 'bg-[#4e73df] text-white border-[#4e73df]' : 'bg-white text-[#858796] border-[#e3e6f0] hover:bg-gray-50'}`}
                 title="Grid View"
               >
-                <LayoutGrid className="w-5 h-5" />
+                <i className="fas fa-th-large"></i>
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`px-3 py-1.5 text-sm transition-colors border-y border-r ${viewMode === 'list' ? 'bg-[#4e73df] text-white border-[#4e73df] border-l border-l-[#4e73df] -ml-px' : 'bg-white text-[#858796] border-[#e3e6f0] border-l-0 hover:bg-gray-50'}`}
                 title="List View"
               >
-                <List className="w-5 h-5" />
+                <i className="fas fa-list"></i>
               </button>
             </div>
             {isAdmin && (
               <button 
                 onClick={handleAddClick}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-block px-3 py-1.5 text-sm font-normal text-white bg-[#4e73df] hover:bg-[#2e59d9] rounded-[0.35rem] shadow-sm transition-colors"
               >
-                <PlusCircle className="w-4 h-4" /> Add Office
+                <i className="fas fa-plus fa-sm text-white/50 mr-2"></i> Add Office
               </button>
             )}
           </div>
         }
       />
 
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <div className="relative">
-          <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder="Search offices by name or district..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setPage(1);
-            }}
-          />
+      {/* Search Card */}
+      <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">
+        <div className="p-4">
+          <div className="relative flex w-full flex-wrap items-stretch">
+            <div className="flex -mr-px">
+              <span className="flex items-center px-4 py-1.5 text-sm bg-gray-100 border-0 rounded-l-[0.35rem]"><i className="fas fa-search text-[#858796]"></i></span>
+            </div>
+            <input 
+              type="text" 
+              className="flex-auto w-[1%] bg-gray-100 border-0 rounded-r-[0.35rem] px-4 py-1.5 text-sm text-[#6e707e] outline-none focus:ring-0 focus:bg-white focus:border-[#bac8f3] focus:ring-[rgba(78,115,223,0.25)] transition-colors" 
+              placeholder="Search offices by name or district..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
         </div>
       </div>
       
       {viewMode === 'grid' ? (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
             {paginatedOffices.map((stat) => (
-          <Link key={stat.office.id} to={`/offices/${stat.office.id}`} className="block">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-blue-50 text-blue-700 rounded-lg">
-                    <Building className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 line-clamp-1" title={stat.office.name}>{stat.office.name}</h3>
-                    <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{stat.office.type}</span>
-                  </div>
-                </div>
-                {isAdmin && (
-                  <button 
-                    onClick={(e) => handleEditClick(stat.office, e)}
-                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Edit Office"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-              
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-                <MapPin className="w-4 h-4" />
-                {stat.office.location}, {stat.office.district}
-              </div>
+              <div key={stat.office.id} className="h-full">
+                <Link to={`/offices/${stat.office.id}`} className="no-underline h-full block">
+                  <div className="bg-white rounded-[0.35rem] shadow-sm hover:shadow-[0_0.5rem_1rem_rgba(0,0,0,0.15)] transition-shadow h-full border-l-[0.25rem] border-[#36b9cc] py-2">
+                    <div className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center flex-1 min-w-0 mr-2">
+                          <div className="mr-3 flex-shrink-0">
+                            <div className="bg-[#36b9cc] text-white shadow-sm w-10 h-10 rounded-full flex items-center justify-center">
+                              <i className="fas fa-building"></i>
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h5 className="font-bold text-gray-900 mb-1 truncate" title={stat.office.name}>{stat.office.name}</h5>
+                            <span className="inline-block py-1 px-2 rounded font-bold text-[75%] leading-none text-center whitespace-nowrap bg-[#36b9cc] text-white uppercase">{stat.office.type}</span>
+                          </div>
+                        </div>
+                        {isAdmin && (
+                          <button 
+                            onClick={(e) => handleEditClick(stat.office, e)}
+                            className="inline-block px-2 py-1 text-sm bg-[#f8f9fc] hover:bg-[#e2e6ea] text-[#4e73df] rounded transition-colors flex-shrink-0"
+                            title="Edit Office"
+                          >
+                            <i className="fas fa-edit"></i>
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div className="text-xs font-bold uppercase mb-3 text-[#858796]">
+                        <i className="fas fa-map-marker-alt mr-1"></i>
+                        {stat.office.location}, {stat.office.district}
+                      </div>
 
-              <div className="grid grid-cols-3 gap-4 border-t border-gray-50 pt-4">
-                <div className="text-center">
-                  <p className="text-xs text-gray-500 font-medium">Sanctioned</p>
-                  <p className="text-lg font-semibold text-gray-900">{stat.totalSeats}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xs text-gray-500 font-medium">Occupied</p>
-                  <p className="text-lg font-semibold text-green-600">{stat.occupiedSeats}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xs text-gray-500 font-medium">Vacant</p>
-                  <p className="text-lg font-semibold text-red-600">{stat.vacantSeats}</p>
-                </div>
+                      <div className="grid grid-cols-3 text-center mt-3 border-t border-[#e3e6f0] pt-3">
+                        <div>
+                          <div className="text-[0.7rem] font-bold text-[#b7b9cc] uppercase mb-1">Sanctioned</div>
+                          <div className="text-xl mb-0 font-bold text-[#5a5c69]">{stat.totalSeats}</div>
+                        </div>
+                        <div>
+                          <div className="text-[0.7rem] font-bold text-[#b7b9cc] uppercase mb-1">Occupied</div>
+                          <div className="text-xl mb-0 font-bold text-[#1cc88a]">{stat.occupiedSeats}</div>
+                        </div>
+                        <div>
+                          <div className="text-[0.7rem] font-bold text-[#b7b9cc] uppercase mb-1">Vacant</div>
+                          <div className="text-xl mb-0 font-bold text-[#e74a3b]">{stat.vacantSeats}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
               </div>
-            </div>
-          </Link>
-        ))}
+            ))}
           </div>
           
-          <Pagination 
-            currentPage={page} 
-            totalItems={filteredOffices.length} 
-            itemsPerPage={itemsPerPage} 
-            onPageChange={setPage} 
-          />
-        </div>
+          <div className="bg-white rounded-[0.35rem] shadow-sm mb-6">
+            <div className="p-4 py-2">
+              <Pagination 
+                currentPage={page} 
+                totalItems={filteredOffices.length} 
+                itemsPerPage={itemsPerPage} 
+                onPageChange={setPage} 
+              />
+            </div>
+          </div>
+        </>
       ) : (
-        <DataTable 
-          columns={[
-            { key: 'name', label: 'Office', render: (_, row) => (
-              <div>
-                <Link to={`/offices/${row.office.id}`} className="font-semibold text-blue-600 hover:text-blue-800">{row.office.name}</Link>
-                <p className="text-xs text-gray-500 mt-0.5">{row.office.type}</p>
-              </div>
-            )},
-            { key: 'district', label: 'District', render: (_, row) => row.office.district },
-            { key: 'totalSeats', label: 'Sanctioned Posts' },
-            { key: 'occupiedSeats', label: 'Occupied' },
-            { key: 'vacantSeats', label: 'Vacant' },
-            { key: 'fillRate', label: 'Fill Rate', render: (_, row) => row.totalSeats ? Math.round((row.occupiedSeats / row.totalSeats) * 100) + '%' : '0%' },
-            { key: 'actions', label: '', render: (_, row) => (
-              <div className="flex items-center gap-3 justify-end">
-                {isAdmin && (
-                  <button 
-                    onClick={(e) => handleEditClick(row.office, e)}
-                    className="text-gray-400 hover:text-blue-600 font-medium text-sm flex items-center gap-1"
-                  >
-                    <Edit className="w-4 h-4" />
-                    <span className="sr-only">Edit</span>
-                  </button>
+        <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">
+          <div className="p-0">
+            <DataTable 
+              columns={[
+                { key: 'name', label: 'Office', width: '30%', render: (_, row) => (
+                  <div>
+                    <Link to={`/offices/${row.office.id}`} className="font-bold text-[#4e73df] block truncate">{row.office.name}</Link>
+                    <span className="inline-block py-1 px-2 rounded font-bold text-[75%] leading-none text-center whitespace-nowrap bg-[#36b9cc] text-white mt-1">{row.office.type}</span>
+                  </div>
+                )},
+                { key: 'district', label: 'District / Location', width: '22%', render: (_, row) => (
+                  <span className="truncate block text-[#858796]">{row.office.district}</span>
+                )},
+                { key: 'totalSeats',    label: 'Sanctioned', width: '10%', className: 'text-center', render: (_, row) => <span className="font-bold text-[#5a5c69]">{row.totalSeats}</span> },
+                { key: 'occupiedSeats', label: 'Occupied',   width: '10%', className: 'text-center', render: (_, row) => <span className="font-bold text-[#1cc88a]">{row.occupiedSeats}</span> },
+                { key: 'vacantSeats',   label: 'Vacant',     width: '10%', className: 'text-center', render: (_, row) => <span className="font-bold text-[#e74a3b]">{row.vacantSeats}</span> },
+                { key: 'fillRate', label: 'Fill %', width: '8%', className: 'text-center', render: (_, row) => {
+                  const pct = row.totalSeats ? Math.round((row.occupiedSeats / row.totalSeats) * 100) : 0;
+                  return (
+                    <span className={`font-bold ${pct >= 75 ? 'text-[#1cc88a]' : pct >= 40 ? 'text-[#f6c23e]' : 'text-[#e74a3b]'}`}>
+                      {pct}%
+                    </span>
+                  );
+                }},
+                { key: 'actions', label: '', width: '10%', className: 'text-right', render: (_, row) => (
+                  <div className="flex justify-end items-center">
+                    {isAdmin && (
+                      <button 
+                        onClick={(e) => handleEditClick(row.office, e)}
+                        className="inline-block px-2 py-1 text-sm bg-[#f8f9fc] hover:bg-[#e2e6ea] text-[#4e73df] rounded transition-colors mr-2"
+                        title="Edit Office"
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                    )}
+                    <Link to={`/offices/${row.office.id}`} className="inline-block px-2 py-1 text-sm font-normal text-[#4e73df] border border-[#4e73df] hover:bg-[#4e73df] hover:text-white rounded-[0.35rem] transition-colors">View</Link>
+                  </div>
                 )}
-                <Link to={`/offices/${row.office.id}`} className="text-blue-600 hover:text-blue-800 font-medium text-sm">View Details</Link>
-              </div>
-            )}
-          ]}
-          data={filteredOffices}
-          pagination={true}
-          itemsPerPage={10}
-        />
+              ]}
+              data={filteredOffices}
+              pagination={true}
+              itemsPerPage={10}
+            />
+          </div>
+        </div>
       )}
 
       {isAdmin && (
@@ -202,6 +228,6 @@ export const OfficeListPage = () => {
           onSuccess={mutate}
         />
       )}
-    </div>
+    </>
   );
 };

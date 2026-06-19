@@ -8,7 +8,12 @@ export const authenticate = (req, res, next) => {
   }
 
   const token = authHeader.split(' ')[1];
-  const secret = process.env.JWT_SECRET || 'fallback_secret';
+  const secret = process.env.JWT_SECRET;
+  
+  if (!secret) {
+    console.error('FATAL: JWT_SECRET environment variable is not defined.');
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
 
   try {
     const decoded = jwt.verify(token, secret);

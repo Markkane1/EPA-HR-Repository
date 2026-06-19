@@ -1,25 +1,24 @@
 import { useState, useEffect } from 'react';
 import { apiService } from '../../infrastructure/api/ApiService';
 import { ALL_PERMISSIONS, PERMISSION_LABELS, Permission, Role } from '../../domain/entities';
-import { Shield, Plus, Pencil, Trash2, Check, X, AlertTriangle, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 
 // --------------- Confirmation Modal ---------------
 const ConfirmModal = ({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center">
     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
-    <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 animate-[scale-in_0.15s_ease-out]">
+    <div className="relative bg-white rounded-[0.35rem] shadow-2xl p-6 w-full max-w-sm mx-4">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-          <AlertTriangle className="w-5 h-5 text-red-600" />
+          <i className="fas fa-exclamation-triangle text-red-600"></i>
         </div>
         <div>
-          <h3 className="font-semibold text-slate-800">Confirm Deletion</h3>
-          <p className="text-sm text-slate-500">{message}</p>
+          <h3 className="font-bold text-[#5a5c69] mb-1">Confirm Deletion</h3>
+          <p className="text-sm text-[#858796] mb-0">{message}</p>
         </div>
       </div>
       <div className="flex gap-2 justify-end mt-4">
-        <button onClick={onCancel} className="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors">Cancel</button>
-        <button onClick={onConfirm} className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors">Delete</button>
+        <button onClick={onCancel} className="px-4 py-2 text-sm rounded-[0.35rem] border border-[#e3e6f0] hover:bg-gray-50 text-[#858796] transition-colors">Cancel</button>
+        <button onClick={onConfirm} className="px-4 py-2 text-sm rounded-[0.35rem] bg-[#e74a3b] hover:bg-[#e02d1b] text-white font-bold transition-colors">Delete</button>
       </div>
     </div>
   </div>
@@ -70,43 +69,43 @@ const RoleForm = ({ initial, onSave, onCancel }: RoleFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-2.5 flex items-center gap-2">
-          <X className="w-4 h-4 flex-shrink-0" />{error}
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-[0.35rem] px-4 py-2.5 flex items-center gap-2">
+          <i className="fas fa-times-circle"></i>{error}
         </div>
       )}
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">Role Name</label>
+        <label className="block text-sm font-bold text-[#858796] mb-1.5">Role Name</label>
         <input
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
           placeholder="e.g. HR Manager"
           disabled={initial?.isSystemRole}
-          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm disabled:bg-slate-50 disabled:text-slate-500 transition-colors"
+          className="w-full h-[calc(1.5em+0.75rem+2px)] px-[0.75rem] py-[0.375rem] text-[1rem] font-normal text-[#6e707e] bg-white border border-[#d1d3e2] rounded-[0.35rem] outline-none focus:border-[#bac8f3] focus:ring focus:ring-[rgba(78,115,223,0.25)] transition-colors disabled:bg-gray-100"
         />
-        {initial?.isSystemRole && <p className="text-xs text-amber-600 mt-1">System roles cannot be renamed.</p>}
+        {initial?.isSystemRole && <p className="text-xs text-[#f6c23e] mt-1 mb-0">System roles cannot be renamed.</p>}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">Permissions</label>
+        <label className="block text-sm font-bold text-[#858796] mb-2">Permissions</label>
         <div className="space-y-3">
           {Object.entries(grouped).map(([category, ps]) => (
-            <div key={category} className="border border-slate-200 rounded-xl overflow-hidden">
-              <div className="bg-slate-50 px-4 py-2 border-b border-slate-200">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{category}</span>
+            <div key={category} className="border border-[#e3e6f0] rounded-[0.35rem] overflow-hidden">
+              <div className="bg-gray-50 px-4 py-2 border-b border-[#e3e6f0]">
+                <span className="text-xs font-bold text-[#858796] uppercase tracking-wider">{category}</span>
               </div>
               <div className="p-3 grid grid-cols-2 gap-2">
                 {ps.map(p => (
-                  <label key={p} className={`flex items-center gap-2.5 p-2 rounded-lg cursor-pointer transition-colors hover:bg-slate-50 ${perms.has(p) ? 'bg-blue-50' : ''}`}>
+                  <label key={p} className={`flex items-center gap-2.5 p-2 rounded cursor-pointer transition-colors hover:bg-gray-50 ${perms.has(p) ? 'bg-blue-50' : ''}`}>
                     <div
                       onClick={() => toggle(p)}
-                      className={`w-4.5 h-4.5 rounded flex items-center justify-center border-2 flex-shrink-0 cursor-pointer transition-all ${
-                        perms.has(p) ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'
+                      className={`w-4 h-4 rounded flex items-center justify-center border flex-shrink-0 cursor-pointer transition-all ${
+                        perms.has(p) ? 'bg-[#4e73df] border-[#4e73df]' : 'border-[#d1d3e2] bg-white'
                       }`}
                     >
-                      {perms.has(p) && <Check className="w-3 h-3 text-white" />}
+                      {perms.has(p) && <i className="fas fa-check text-white text-[10px]"></i>}
                     </div>
-                    <span className="text-sm text-slate-700 select-none" onClick={() => toggle(p)}>{PERMISSION_LABELS[p as Permission]}</span>
+                    <span className="text-sm text-[#5a5c69] select-none" onClick={() => toggle(p)}>{PERMISSION_LABELS[p as Permission]}</span>
                   </label>
                 ))}
               </div>
@@ -115,12 +114,12 @@ const RoleForm = ({ initial, onSave, onCancel }: RoleFormProps) => {
         </div>
       </div>
 
-      <div className="flex gap-2 justify-end pt-2 border-t border-slate-100">
-        <button type="button" onClick={onCancel} className="px-4 py-2.5 text-sm rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium transition-colors">
+      <div className="flex gap-2 justify-end pt-3 border-t border-[#e3e6f0]">
+        <button type="button" onClick={onCancel} className="px-4 py-2 text-sm rounded-[0.35rem] border border-[#e3e6f0] text-[#858796] hover:bg-gray-50 font-bold transition-colors">
           Cancel
         </button>
-        <button type="submit" disabled={saving} className="px-5 py-2.5 text-sm rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 transition-colors disabled:opacity-60">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+        <button type="submit" disabled={saving} className="px-4 py-2 text-sm rounded-[0.35rem] bg-[#4e73df] hover:bg-[#2e59d9] text-white font-bold flex items-center gap-2 transition-colors disabled:opacity-60">
+          {saving ? <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <i className="fas fa-check"></i>}
           {saving ? 'Saving...' : 'Save Role'}
         </button>
       </div>
@@ -173,7 +172,7 @@ export const RoleManagementPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-6">
       {deletingRole && (
         <ConfirmModal
           message={`Delete role "${deletingRole.name}"? Users assigned to this role will lose access.`}
@@ -183,104 +182,97 @@ export const RoleManagementPage = () => {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/30">
-            <Shield className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-800">Role Management</h1>
-            <p className="text-sm text-slate-500">Configure roles and their page/action permissions</p>
-          </div>
-        </div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl text-gray-800 font-normal m-0">Role Management</h1>
         <button
           onClick={() => { setShowCreate(true); setEditingRole(null); }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-500/30 transition-colors"
+          className="inline-block px-3 py-1.5 text-sm font-normal text-white bg-[#4e73df] hover:bg-[#2e59d9] rounded-[0.35rem] shadow-sm transition-colors"
         >
-          <Plus className="w-4 h-4" />
-          New Role
+          <i className="fas fa-plus fa-sm text-white/50 mr-1"></i> New Role
         </button>
       </div>
 
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">{error}</div>}
+      {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-[0.35rem] px-4 py-3">{error}</div>}
 
       {/* Create Form */}
       {showCreate && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <h2 className="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
-            <Plus className="w-4 h-4 text-blue-600" /> Create New Role
-          </h2>
-          <RoleForm onSave={handleCreate} onCancel={() => setShowCreate(false)} />
+        <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">
+          <div className="p-5 border-l-[0.25rem] border-[#4e73df]">
+            <h2 className="text-lg font-bold text-[#4e73df] mb-4 flex items-center gap-2">
+              <i className="fas fa-plus-circle"></i> Create New Role
+            </h2>
+            <RoleForm onSave={handleCreate} onCancel={() => setShowCreate(false)} />
+          </div>
         </div>
       )}
 
       {/* Roles List */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-[#4e73df] border-t-transparent rounded-full" role="status"></div>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {roles.map(role => (
-            <div key={role.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div key={role.id} className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] overflow-hidden">
               {editingRole?.id === role.id ? (
-                <div className="p-6">
-                  <h2 className="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                    <Pencil className="w-4 h-4 text-blue-600" /> Editing: {role.name}
+                <div className="p-5 border-l-[0.25rem] border-[#f6c23e]">
+                  <h2 className="text-lg font-bold text-[#f6c23e] mb-4 flex items-center gap-2">
+                    <i className="fas fa-edit"></i> Editing: {role.name}
                   </h2>
                   <RoleForm initial={role} onSave={handleUpdate} onCancel={() => setEditingRole(null)} />
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center justify-between px-5 py-4">
+                  <div className={`flex items-center justify-between px-5 py-4 border-l-[0.25rem] ${role.isSystemRole ? 'border-[#f6c23e]' : 'border-[#4e73df]'}`}>
                     <div className="flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${role.isSystemRole ? 'bg-amber-100' : 'bg-blue-100'}`}>
-                        <Shield className={`w-5 h-5 ${role.isSystemRole ? 'text-amber-600' : 'text-blue-600'}`} />
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${role.isSystemRole ? 'bg-[#f6c23e]' : 'bg-[#4e73df]'}`}>
+                        <i className="fas fa-shield-alt"></i>
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-slate-800">{role.name}</span>
+                          <span className="font-bold text-[#5a5c69]">{role.name}</span>
                           {role.isSystemRole && (
-                            <span className="text-xs bg-amber-100 text-amber-700 font-medium px-2 py-0.5 rounded-full">System</span>
+                            <span className="text-[0.65rem] bg-[#f6c23e] text-white font-bold px-2 py-0.5 rounded uppercase">System</span>
                           )}
                         </div>
-                        <p className="text-sm text-slate-500">{role.permissions.length} permission{role.permissions.length !== 1 ? 's' : ''}</p>
+                        <p className="text-sm text-[#858796] m-0">{role.permissions.length} permission{role.permissions.length !== 1 ? 's' : ''}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setExpandedRole(expandedRole === role.id ? null : role.id)}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-[#858796] hover:text-[#4e73df] hover:bg-gray-100 rounded transition-colors"
                         title="View permissions"
                       >
-                        {expandedRole === role.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        <i className={`fas fa-chevron-${expandedRole === role.id ? 'up' : 'down'}`}></i>
                       </button>
                       <button
                         onClick={() => { setEditingRole(role); setShowCreate(false); }}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-[#858796] hover:text-[#f6c23e] hover:bg-gray-100 rounded transition-colors"
                         title="Edit role"
                       >
-                        <Pencil className="w-4 h-4" />
+                        <i className="fas fa-edit"></i>
                       </button>
                       {!role.isSystemRole && (
                         <button
                           onClick={() => setDeletingRole(role)}
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 text-[#858796] hover:text-[#e74a3b] hover:bg-gray-100 rounded transition-colors"
                           title="Delete role"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <i className="fas fa-trash"></i>
                         </button>
                       )}
                     </div>
                   </div>
                   {expandedRole === role.id && (
-                    <div className="px-5 pb-4 border-t border-slate-100 pt-3">
+                    <div className="px-5 pb-4 border-t border-[#e3e6f0] pt-3">
                       {role.permissions.length === 0 ? (
-                        <p className="text-sm text-slate-400 italic">No permissions assigned</p>
+                        <p className="text-sm text-[#858796] italic m-0">No permissions assigned</p>
                       ) : (
                         <div className="flex flex-wrap gap-2">
                           {role.permissions.map(p => (
-                            <span key={p} className="text-xs bg-blue-50 text-blue-700 font-medium px-2.5 py-1 rounded-lg border border-blue-100">
+                            <span key={p} className="text-xs bg-[#eaecf4] text-[#5a5c69] font-bold px-2.5 py-1 rounded">
                               {PERMISSION_LABELS[p as Permission] || p}
                             </span>
                           ))}
@@ -293,9 +285,9 @@ export const RoleManagementPage = () => {
             </div>
           ))}
           {roles.length === 0 && (
-            <div className="text-center py-16 text-slate-400">
-              <Shield className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p className="font-medium">No roles found</p>
+            <div className="text-center py-16 text-[#858796]">
+              <i className="fas fa-shield-alt text-4xl mb-3 opacity-30"></i>
+              <p className="font-bold">No roles found</p>
               <p className="text-sm">Create your first role to get started</p>
             </div>
           )}

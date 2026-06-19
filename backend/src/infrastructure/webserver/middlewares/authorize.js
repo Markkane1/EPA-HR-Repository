@@ -1,7 +1,7 @@
 /**
  * Dynamic permission-based authorization middleware.
  * Usage: authorize('employees.write') or authorize(['employees.write', 'offices.read'])
- * If no permission is required, it just checks that the user is authenticated (via req.user).
+ * Backward-compatible: also accepts old JWTs where role === 'admin'.
  */
 export const authorize = (requiredPermission) => {
   return (req, res, next) => {
@@ -9,8 +9,14 @@ export const authorize = (requiredPermission) => {
       return res.status(403).json({ error: 'Forbidden: Not authenticated' });
     }
 
-    // Super admin (isSystemRole admin) bypasses all permission checks
-    if (req.user.isSystemAdmin) {
+    // Backward compat: old JWTs have role === 'admin' string
+    const isLegacyAdmin = req.user.role === 'admin';
+
+    // New JWTs: isSystemAdmin flag set for system roles
+    const isSystemAdmin = req.user.isSystemAdmin === true;
+
+    // Both legacy admins and system admins bypass all permission checks
+    if (isLegacyAdmin || isSystemAdmin) {
       return next();
     }
 
@@ -29,3 +35,4 @@ export const authorize = (requiredPermission) => {
     next();
   };
 };
+

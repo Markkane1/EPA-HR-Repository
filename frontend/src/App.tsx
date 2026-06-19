@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MainLayout } from './presentation/layouts/MainLayout';
+import { AuthLayout } from './presentation/layouts/AuthLayout';
 import { DashboardPage } from './presentation/pages/DashboardPage';
 import { EmployeeDirectoryPage } from './presentation/pages/EmployeeDirectoryPage';
 import { EmployeeProfilePage } from './presentation/pages/EmployeeProfilePage';
@@ -17,9 +18,12 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
-          
+          {/* Auth pages — wrapped in the SB Admin 2 split-panel layout */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          </Route>
+
           {/* All authenticated routes */}
           <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>

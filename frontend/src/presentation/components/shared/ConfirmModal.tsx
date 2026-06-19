@@ -27,26 +27,26 @@ export const ConfirmModal = ({
 }: ConfirmModalProps) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} maxWidth="max-w-md">
-      <div className="flex flex-col items-center text-center space-y-4 py-4">
-        <div className={`p-3 rounded-full ${isDestructive ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
-          <AlertTriangle className="w-8 h-8" />
+      <div className="text-center py-4">
+        <div className="mb-3">
+          <AlertTriangle className={`w-12 h-12 mx-auto ${isDestructive ? 'text-[#e74a3b]' : 'text-[#4e73df]'}`} />
         </div>
-        <p className="text-gray-600 text-sm leading-relaxed">{message}</p>
+        <p className="text-xl font-light text-[#5a5c69] leading-relaxed">{message}</p>
       </div>
-      <div className="flex justify-end pt-6 border-t border-gray-100 gap-3">
+      <div className="flex flex-wrap items-center justify-center p-[0.75rem] gap-2 pt-0">
         <button
           onClick={onClose}
           disabled={isLoading}
-          className="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+          className="inline-block font-normal text-center align-middle cursor-pointer select-none border border-transparent py-[0.375rem] px-[0.75rem] text-[1rem] leading-[1.5] rounded-[0.35rem] transition-colors text-white bg-[#858796] hover:bg-[#717384]"
         >
           {cancelText}
         </button>
         <button
           onClick={onConfirm}
           disabled={isLoading}
-          className={`px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 ${isDestructive ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+          className={`inline-flex items-center justify-center font-normal text-center align-middle cursor-pointer select-none border border-transparent py-[0.375rem] px-[0.75rem] text-[1rem] leading-[1.5] rounded-[0.35rem] transition-colors text-white ${isDestructive ? 'bg-[#e74a3b] hover:bg-[#e02d1b]' : 'bg-[#4e73df] hover:bg-[#2e59d9]'}`}
         >
-          {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+          {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
           {confirmText}
         </button>
       </div>

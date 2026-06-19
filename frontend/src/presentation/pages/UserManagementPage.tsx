@@ -1,25 +1,24 @@
 import { useState, useEffect } from 'react';
 import { apiService } from '../../infrastructure/api/ApiService';
 import { User, Role } from '../../domain/entities';
-import { UserCog, Plus, Pencil, Trash2, Check, X, AlertTriangle, Loader2, Search, Shield, UserCheck, UserX } from 'lucide-react';
 
 // --------------- Confirmation Modal ---------------
 const ConfirmModal = ({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center">
     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
-    <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4">
+    <div className="relative bg-white rounded-[0.35rem] shadow-2xl p-6 w-full max-w-sm mx-4">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-          <AlertTriangle className="w-5 h-5 text-red-600" />
+          <i className="fas fa-exclamation-triangle text-red-600"></i>
         </div>
         <div>
-          <h3 className="font-semibold text-slate-800">Confirm Action</h3>
-          <p className="text-sm text-slate-500">{message}</p>
+          <h3 className="font-bold text-[#5a5c69] mb-1">Confirm Action</h3>
+          <p className="text-sm text-[#858796] mb-0">{message}</p>
         </div>
       </div>
       <div className="flex gap-2 justify-end mt-4">
-        <button onClick={onCancel} className="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors">Cancel</button>
-        <button onClick={onConfirm} className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors">Confirm</button>
+        <button onClick={onCancel} className="px-4 py-2 text-sm rounded-[0.35rem] border border-[#e3e6f0] hover:bg-gray-50 text-[#858796] transition-colors">Cancel</button>
+        <button onClick={onConfirm} className="px-4 py-2 text-sm rounded-[0.35rem] bg-[#e74a3b] hover:bg-[#e02d1b] text-white font-bold transition-colors">Confirm</button>
       </div>
     </div>
   </div>
@@ -73,57 +72,57 @@ const UserFormModal = ({ initial, roles, onSave, onClose, isEdit }: UserFormProp
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white rounded-[0.35rem] shadow-2xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-slate-800">{isEdit ? 'Edit User' : 'Create User'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors"><X className="w-5 h-5" /></button>
+          <h2 className="text-lg font-bold text-[#5a5c69] m-0">{isEdit ? 'Edit User' : 'Create User'}</h2>
+          <button onClick={onClose} className="text-[#858796] hover:text-[#5a5c69] transition-colors"><i className="fas fa-times"></i></button>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-2.5 flex items-center gap-2 mb-4">
-            <X className="w-4 h-4 flex-shrink-0" />{error}
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-[0.35rem] px-4 py-2.5 flex items-center gap-2 mb-4">
+            <i className="fas fa-times-circle"></i>{error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Full Name</label>
+            <label className="block text-sm font-bold text-[#858796] mb-1.5">Full Name</label>
             <input type="text" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Enter full name"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-colors" />
+              className="w-full h-[calc(1.5em+0.75rem+2px)] px-[0.75rem] py-[0.375rem] text-[1rem] font-normal text-[#6e707e] bg-white border border-[#d1d3e2] rounded-[0.35rem] outline-none focus:border-[#bac8f3] focus:ring focus:ring-[rgba(78,115,223,0.25)] transition-colors" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
+            <label className="block text-sm font-bold text-[#858796] mb-1.5">Email Address</label>
             <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="user@example.com"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-colors" />
+              className="w-full h-[calc(1.5em+0.75rem+2px)] px-[0.75rem] py-[0.375rem] text-[1rem] font-normal text-[#6e707e] bg-white border border-[#d1d3e2] rounded-[0.35rem] outline-none focus:border-[#bac8f3] focus:ring focus:ring-[rgba(78,115,223,0.25)] transition-colors" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className="block text-sm font-bold text-[#858796] mb-1.5">
               {isEdit ? 'Password (leave blank to keep unchanged)' : 'Password'}
             </label>
             <input type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder={isEdit ? '••••••••' : 'Min 8 characters'}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-colors" />
+              className="w-full h-[calc(1.5em+0.75rem+2px)] px-[0.75rem] py-[0.375rem] text-[1rem] font-normal text-[#6e707e] bg-white border border-[#d1d3e2] rounded-[0.35rem] outline-none focus:border-[#bac8f3] focus:ring focus:ring-[rgba(78,115,223,0.25)] transition-colors" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Assign Role</label>
+            <label className="block text-sm font-bold text-[#858796] mb-1.5">Assign Role</label>
             <select value={form.roleId} onChange={e => set('roleId', e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white transition-colors">
+              className="w-full h-[calc(1.5em+0.75rem+2px)] px-[0.75rem] py-[0.375rem] text-[1rem] font-normal text-[#6e707e] bg-white border border-[#d1d3e2] rounded-[0.35rem] outline-none focus:border-[#bac8f3] focus:ring focus:ring-[rgba(78,115,223,0.25)] transition-colors">
               <option value="">— No Role —</option>
               {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Status</label>
+            <label className="block text-sm font-bold text-[#858796] mb-1.5">Status</label>
             <select value={form.status} onChange={e => set('status', e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white transition-colors">
+              className="w-full h-[calc(1.5em+0.75rem+2px)] px-[0.75rem] py-[0.375rem] text-[1rem] font-normal text-[#6e707e] bg-white border border-[#d1d3e2] rounded-[0.35rem] outline-none focus:border-[#bac8f3] focus:ring focus:ring-[rgba(78,115,223,0.25)] transition-colors">
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
           </div>
 
-          <div className="flex gap-2 justify-end pt-2 border-t border-slate-100">
-            <button type="button" onClick={onClose} className="px-4 py-2.5 text-sm rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium transition-colors">Cancel</button>
-            <button type="submit" disabled={saving} className="px-5 py-2.5 text-sm rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 transition-colors disabled:opacity-60">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+          <div className="flex gap-2 justify-end pt-3 border-t border-[#e3e6f0]">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-[0.35rem] border border-[#e3e6f0] text-[#858796] hover:bg-gray-50 font-bold transition-colors">Cancel</button>
+            <button type="submit" disabled={saving} className="px-4 py-2 text-sm rounded-[0.35rem] bg-[#4e73df] hover:bg-[#2e59d9] text-white font-bold flex items-center gap-2 transition-colors disabled:opacity-60">
+              {saving ? <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <i className="fas fa-check"></i>}
               {saving ? 'Saving...' : (isEdit ? 'Update User' : 'Create User')}
             </button>
           </div>
@@ -192,11 +191,9 @@ export const UserManagementPage = () => {
   });
 
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  const avatarColors = ['from-blue-500 to-indigo-600', 'from-purple-500 to-pink-600', 'from-teal-500 to-emerald-600', 'from-orange-500 to-red-600'];
-  const getColor = (id: string) => avatarColors[id.charCodeAt(0) % avatarColors.length];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-6">
       {deletingUser && (
         <ConfirmModal
           message={`Delete user "${deletingUser.name}"? This action cannot be undone.`}
@@ -212,143 +209,138 @@ export const UserManagementPage = () => {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-md shadow-purple-500/30">
-            <UserCog className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-800">User Management</h1>
-            <p className="text-sm text-slate-500">Manage system users and assign roles</p>
-          </div>
-        </div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl text-gray-800 font-normal m-0">User Management</h1>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-purple-500/30 transition-colors"
+          className="inline-block px-3 py-1.5 text-sm font-normal text-white bg-[#4e73df] hover:bg-[#2e59d9] rounded-[0.35rem] shadow-sm transition-colors"
         >
-          <Plus className="w-4 h-4" />
-          New User
+          <i className="fas fa-plus fa-sm text-white/50 mr-1"></i> New User
         </button>
       </div>
 
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">{error}</div>}
+      {error && <div className="bg-red-50 border border-red-200 text-[#e74a3b] text-sm rounded-[0.35rem] px-4 py-3">{error}</div>}
 
       {/* Stats Bar */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {[
-          { label: 'Total Users', value: users.length, color: 'text-slate-700', bg: 'bg-white' },
-          { label: 'Active', value: users.filter(u => u.status === 'active').length, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-          { label: 'Inactive', value: users.filter(u => u.status !== 'active').length, color: 'text-red-600', bg: 'bg-red-50' },
+          { label: 'Total Users', value: users.length, border: 'border-l-[0.25rem] border-[#4e73df]', text: 'text-[#4e73df]' },
+          { label: 'Active', value: users.filter(u => u.status === 'active').length, border: 'border-l-[0.25rem] border-[#1cc88a]', text: 'text-[#1cc88a]' },
+          { label: 'Inactive', value: users.filter(u => u.status !== 'active').length, border: 'border-l-[0.25rem] border-[#e74a3b]', text: 'text-[#e74a3b]' },
         ].map(s => (
-          <div key={s.label} className={`${s.bg} rounded-2xl border border-slate-200 p-4 shadow-sm`}>
-            <p className="text-sm text-slate-500">{s.label}</p>
-            <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+          <div key={s.label} className={`bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] p-4 ${s.border}`}>
+            <div className="text-[0.7rem] font-bold uppercase mb-1 text-[#858796]">{s.label}</div>
+            <div className={`text-xl font-bold ${s.text}`}>{s.value}</div>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search by name or email..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-colors bg-white"
-          />
+      <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">
+        <div className="p-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#858796]"><i className="fas fa-search"></i></span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search by name or email..."
+                className="w-full pl-10 pr-4 py-1.5 text-sm bg-gray-100 border-0 rounded-[0.35rem] text-[#6e707e] outline-none focus:ring-0 focus:bg-white focus:border-[#bac8f3] focus:ring-[rgba(78,115,223,0.25)] transition-colors"
+              />
+            </div>
+            <select
+              value={filterRole}
+              onChange={e => setFilterRole(e.target.value)}
+              className="px-4 py-1.5 text-sm bg-gray-100 border-0 rounded-[0.35rem] text-[#6e707e] outline-none focus:ring-0 focus:bg-white focus:border-[#bac8f3] focus:ring-[rgba(78,115,223,0.25)] transition-colors"
+            >
+              <option value="">All Roles</option>
+              {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+            </select>
+          </div>
         </div>
-        <select
-          value={filterRole}
-          onChange={e => setFilterRole(e.target.value)}
-          className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors"
-        >
-          <option value="">All Roles</option>
-          {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-        </select>
       </div>
 
       {/* Users Table */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-[#4e73df] border-t-transparent rounded-full" role="status"></div>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] overflow-hidden">
           {filtered.length === 0 ? (
-            <div className="text-center py-16 text-slate-400">
-              <UserCog className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p className="font-medium">No users found</p>
-              <p className="text-sm">Try adjusting your search or filters</p>
+            <div className="text-center py-16 text-[#858796]">
+              <i className="fas fa-users text-4xl mb-3 opacity-30"></i>
+              <p className="font-bold mb-1">No users found</p>
+              <p className="text-sm m-0">Try adjusting your search or filters</p>
             </div>
           ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="px-5 py-3.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map(user => (
-                  <tr key={user.id} className="hover:bg-slate-50 transition-colors group">
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${getColor(user.id)} flex items-center justify-center flex-shrink-0`}>
-                          <span className="text-white text-xs font-bold">{getInitials(user.name)}</span>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[#e3e6f0] bg-gray-50">
+                    <th className="px-5 py-3 text-xs font-bold text-[#858796] uppercase tracking-wider">User</th>
+                    <th className="px-5 py-3 text-xs font-bold text-[#858796] uppercase tracking-wider">Role</th>
+                    <th className="px-5 py-3 text-xs font-bold text-[#858796] uppercase tracking-wider">Status</th>
+                    <th className="px-5 py-3 text-right text-xs font-bold text-[#858796] uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#e3e6f0]">
+                  {filtered.map(user => (
+                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full bg-[#4e73df] flex items-center justify-center flex-shrink-0 text-white font-bold`}>
+                            {getInitials(user.name)}
+                          </div>
+                          <div>
+                            <p className="font-bold text-[#5a5c69] m-0">{user.name}</p>
+                            <p className="text-sm text-[#858796] m-0">{user.email}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-semibold text-slate-800 text-sm">{user.name}</p>
-                          <p className="text-xs text-slate-400">{user.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      {user.role ? (
-                        <div className="flex items-center gap-1.5">
-                          <Shield className="w-3.5 h-3.5 text-blue-500" />
-                          <span className="text-sm font-medium text-slate-700">{user.role.name}</span>
-                          {user.role.isSystemRole && (
-                            <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">System</span>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-sm text-slate-400 italic">No role assigned</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
-                        user.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
-                      }`}>
-                        {user.status === 'active' ? <UserCheck className="w-3 h-3" /> : <UserX className="w-3 h-3" />}
-                        {user.status === 'active' ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-1.5 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                      </td>
+                      <td className="px-5 py-3">
+                        {user.role ? (
+                          <div className="flex items-center gap-1.5">
+                            <i className="fas fa-shield-alt text-[#36b9cc]"></i>
+                            <span className="text-sm font-bold text-[#5a5c69]">{user.role.name}</span>
+                            {user.role.isSystemRole && (
+                              <span className="text-[0.65rem] bg-[#f6c23e] text-white px-2 py-0.5 rounded uppercase font-bold">System</span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-sm text-[#858796] italic">No role assigned</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3">
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full text-white ${
+                          user.status === 'active' ? 'bg-[#1cc88a]' : 'bg-[#e74a3b]'
+                        }`}>
+                          <i className={`fas fa-${user.status === 'active' ? 'check' : 'times'}`}></i>
+                          {user.status === 'active' ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-right">
                         <button
                           onClick={() => setEditingUser(user)}
-                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="inline-block px-2 py-1 text-sm bg-[#f8f9fc] hover:bg-[#e2e6ea] text-[#4e73df] rounded transition-colors mr-2"
                           title="Edit user"
                         >
-                          <Pencil className="w-4 h-4" />
+                          <i className="fas fa-edit"></i>
                         </button>
                         <button
                           onClick={() => setDeletingUser(user)}
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="inline-block px-2 py-1 text-sm bg-red-50 hover:bg-red-100 text-[#e74a3b] rounded transition-colors"
                           title="Delete user"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <i className="fas fa-trash"></i>
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}

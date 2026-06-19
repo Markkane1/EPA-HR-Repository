@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -9,44 +8,47 @@ interface ModalProps {
   maxWidth?: string;
 }
 
-export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-2xl' }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-3xl' }: ModalProps) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" 
-        onClick={onClose}
-      />
-      
-      {/* Modal Panel */}
-      <div className={`relative w-full ${maxWidth} bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh]`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-          <button 
-            onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto p-6">
-          {children}
+    <>
+      <div className="fixed inset-0 z-[1050] flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none p-4">
+        <div className={`relative w-auto my-6 mx-auto ${maxWidth} w-full animate-fade-in`}>
+          {/* Modal content */}
+          <div className="relative flex flex-col w-full bg-white bg-clip-padding border border-[rgba(0,0,0,0.2)] rounded-[0.3rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] outline-none">
+            {/* Modal header */}
+            <div className="flex items-start justify-between p-[1rem] border-b border-[#e3e6f0] rounded-t-[0.3rem]">
+              <h5 className="mb-0 leading-[1.5] text-[#5a5c69] font-bold text-xl">{title}</h5>
+              <button 
+                type="button" 
+                className="p-[1rem] -m-[1rem] bg-transparent border-0 float-right text-[1.5rem] font-bold leading-none text-[#858796] opacity-50 hover:text-black hover:opacity-75 transition-all cursor-pointer" 
+                onClick={onClose} 
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            
+            {/* Modal body */}
+            <div className="relative flex-auto p-[1rem] text-[#858796]">
+              {children}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+      <div className="fixed inset-0 z-[1040] bg-black opacity-50 transition-opacity"></div>
+    </>
   );
 };
