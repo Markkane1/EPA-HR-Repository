@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, CheckCircle2 } from 'lucide-react';
 import { Modal } from '../shared/Modal';
 import { useUpdatePosition } from '../../../application/usecases/useUpdatePosition';
 
@@ -116,12 +115,12 @@ export const PositionModal = ({ isOpen, onClose, officeId, positionToEdit, onSuc
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <i className="fas fa-circle-notch fa-spin"></i>
                 <span>Updating...</span>
               </>
             ) : showSuccess ? (
               <>
-                <CheckCircle2 className="w-4 h-4" />
+                <i className="fas fa-check-circle"></i>
                 <span>Updated!</span>
               </>
             ) : (

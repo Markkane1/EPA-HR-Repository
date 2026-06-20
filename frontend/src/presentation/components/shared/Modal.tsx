@@ -42,7 +42,7 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-3xl'
             </div>
             
             {/* Modal body */}
-            <div className="relative flex-auto p-[1rem] text-[#858796]">
+            <div className="relative flex-auto p-[1rem] text-[#858796] max-h-[calc(100vh-8rem)] overflow-y-auto">
               {children}
             </div>
           </div>

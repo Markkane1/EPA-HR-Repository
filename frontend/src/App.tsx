@@ -12,6 +12,7 @@ import { RoleManagementPage } from './presentation/pages/RoleManagementPage';
 import { UserManagementPage } from './presentation/pages/UserManagementPage';
 import { AuthProvider } from './presentation/contexts/AuthContext';
 import { ProtectedRoute } from './presentation/components/shared/ProtectedRoute';
+import { ReportsPage } from './presentation/pages/ReportsPage';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="/employees/:id" element={<EmployeeProfilePage />} />
               <Route path="/offices" element={<OfficeListPage />} />
               <Route path="/offices/:id" element={<OfficeDetailPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
 
               {/* Settings section - permission protected */}
               <Route element={<ProtectedRoute requiredPermission="users.read" />}>

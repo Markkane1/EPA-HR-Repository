@@ -86,7 +86,7 @@ export const OfficeDetailPage = () => {
       <PageHeader 
         title={office.name} 
         breadcrumb="Offices / Detail" 
-        actionButton={<span className="inline-block py-1 px-2 rounded font-bold text-[75%] leading-none text-center whitespace-nowrap bg-[#36b9cc] text-white uppercase">{office.type}</span>}
+        actionButton={<span className="inline-block py-1 px-2 rounded font-bold text-[75%] leading-none text-center whitespace-nowrap bg-[#4e73df] text-white uppercase">{office.type}</span>}
       />
 
       <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">

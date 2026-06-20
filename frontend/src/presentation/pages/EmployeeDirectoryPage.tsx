@@ -10,6 +10,7 @@ import { StatusBadge } from '../components/shared/StatusBadge';
 import { BSBadge } from '../components/shared/BSBadge';
 import { EmployeeModal } from '../components/employees/EmployeeModal';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useDebounce } from '../hooks/useDebounce';
 
 export const EmployeeDirectoryPage = () => {
   const { isAdmin } = useAuthContext();
@@ -22,25 +23,17 @@ export const EmployeeDirectoryPage = () => {
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 300);
   const [statusFilter, setStatusFilter] = useState('all');
   const [bsFilter, setBsFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('name_asc');
 
   // Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [employeeToEdit, setEmployeeToEdit] = useState<any | null>(null);
 
-  // Debounce search
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
-      setPage(1);
-    }, 300);
-    return () => clearTimeout(handler);
-  }, [searchTerm]);
-
   // Reset page when filters or view change
-  useEffect(() => { setPage(1); }, [statusFilter, bsFilter, viewMode]);
+  useEffect(() => { setPage(1); }, [statusFilter, bsFilter, viewMode, debouncedSearch, sortBy]);
 
   const { data, loading, error, mutate } = useGetEmployees({ 
     search: debouncedSearch,
@@ -62,7 +55,15 @@ export const EmployeeDirectoryPage = () => {
   if (loading && !data?.length) return <LoadingSpinner />;
   if (error) return <EmptyState message={error.message} />;
 
-  const allEmployees = data || [];
+  const allEmployees = (data || []).sort((a: any, b: any) => {
+    switch (sortBy) {
+      case 'name_asc': return a.name.localeCompare(b.name);
+      case 'name_desc': return b.name.localeCompare(a.name);
+      case 'bs_desc': return (b.basicScale || 0) - (a.basicScale || 0);
+      case 'bs_asc': return (a.basicScale || 0) - (b.basicScale || 0);
+      default: return 0;
+    }
+  });
   const totalItems = allEmployees.length;
   const paginatedEmployees = allEmployees.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
@@ -158,6 +159,18 @@ export const EmployeeDirectoryPage = () => {
                   <i className="fas fa-times"></i>
                 </button>
               )}
+
+              {/* Sort Filter */}
+              <select
+                className="w-full md:w-auto mt-2 md:mt-0 h-[calc(1.5em+0.5rem+2px)] px-2 py-1 text-sm font-normal text-[#6e707e] bg-white bg-clip-padding border border-[#d1d3e2] rounded-[0.2rem] outline-none focus:border-[#bac8f3] focus:ring focus:ring-[rgba(78,115,223,0.25)] transition-colors ml-0 md:ml-2"
+                value={sortBy}
+                onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+              >
+                <option value="name_asc">Name (A-Z)</option>
+                <option value="name_desc">Name (Z-A)</option>
+                <option value="bs_desc">BS (High-Low)</option>
+                <option value="bs_asc">BS (Low-High)</option>
+              </select>
             </div>
           </div>
         </div>

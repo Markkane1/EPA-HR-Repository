@@ -33,7 +33,7 @@ export const DataTable = ({
   return (
     <div className="w-full">
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-[#858796] border border-[#e3e6f0]" style={{ tableLayout: 'fixed' }}>
+        <table className="w-full min-w-[800px] border-collapse text-[#858796] border border-[#e3e6f0]" style={{ tableLayout: 'fixed' }}>
           <colgroup>
             {columns.map(col => (
               <col key={col.key} style={col.width ? { width: col.width } : undefined} />

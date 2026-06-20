@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2 } from 'lucide-react';
 import { Modal } from '../shared/Modal';
 import { useCreateOffice } from '../../../application/usecases/useCreateOffice';
 import { useUpdateOffice } from '../../../application/usecases/useUpdateOffice';
@@ -141,7 +140,7 @@ export const OfficeModal = ({ isOpen, onClose, officeToEdit, onSuccess }: Office
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <i className="fas fa-circle-notch fa-spin"></i>
                 <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
               </>
             ) : (

@@ -5,8 +5,9 @@ import { z } from 'zod';
 import { useGetOffices } from '../../../application/usecases/useGetOffices';
 import { useRecordAttachment } from '../../../application/usecases/useRecordAttachment';
 import { Modal } from '../shared/Modal';
-import { Loader2, CheckCircle2 } from 'lucide-react';
 import { Employee } from '../../../domain/entities';
+import { SearchableSelect } from '../shared/SearchableSelect';
+import { groupOfficesByDivision } from '../../../domain/constants/punjabDivisions';
 
 const schema = z.object({
   officeId: z.string().min(1, "Office to attach to is required"),
@@ -30,12 +31,14 @@ export const AttachmentModal = ({ isOpen, onClose, employee, onSuccess }: Attach
   const { data: offices } = useGetOffices();
   const { execute, loading: submitLoading, error: submitError } = useRecordAttachment();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       effectiveFrom: new Date().toISOString().split('T')[0]
     }
   });
+
+  const selectedOfficeId = watch("officeId");
 
   const handleClose = () => {
     reset();
@@ -71,12 +74,12 @@ export const AttachmentModal = ({ isOpen, onClose, employee, onSuccess }: Attach
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Attach To Office *</label>
-            <select {...register("officeId")} className="w-full border border-gray-300 rounded-md p-2">
-              <option value="">Select Destination Office...</option>
-              {offices?.filter(o => o.id !== employee.currentPosting?.officeId).map(o => (
-                <option key={o.id} value={o.id}>{o.name}</option>
-              ))}
-            </select>
+            <SearchableSelect 
+              groupedOptions={groupOfficesByDivision(offices?.filter(o => o.id !== employee.currentPosting?.officeId))}
+              value={selectedOfficeId || ''}
+              onChange={(val) => setValue('officeId', val, { shouldValidate: true })}
+              placeholder="Select Destination Office..."
+            />
             {errors.officeId && <p className="text-red-500 text-xs mt-1">{errors.officeId.message}</p>}
           </div>
           
@@ -120,12 +123,12 @@ export const AttachmentModal = ({ isOpen, onClose, employee, onSuccess }: Attach
             >
               {submitLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <i className="fas fa-circle-notch fa-spin"></i>
                   <span>Recording...</span>
                 </>
               ) : showSuccess ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4" />
+                  <i className="fas fa-check-circle"></i>
                   <span>Attached!</span>
                 </>
               ) : (

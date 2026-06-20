@@ -2,13 +2,14 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2 } from 'lucide-react';
 import { Modal } from '../shared/Modal';
 import { useCreateEmployee } from '../../../application/usecases/useCreateEmployee';
 import { useUpdateEmployee } from '../../../application/usecases/useUpdateEmployee';
 import { useGetOffices } from '../../../application/usecases/useGetOffices';
 import { useGetOffice } from '../../../application/usecases/useGetOffice';
 import { EmployeeProfile, EmployeeListItem } from '../../../domain/entities';
+import { SearchableSelect } from '../shared/SearchableSelect';
+import { groupOfficesByDivision } from '../../../domain/constants/punjabDivisions';
 
 const baseSchema = {
   name: z.string().min(2, "Name is required"),
@@ -42,7 +43,7 @@ export const EmployeeModal = ({ isOpen, onClose, employeeToEdit, onSuccess }: Em
   const isLoading = isCreating || isUpdating;
   const error = createError || updateError;
 
-  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<any>({
+  const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<any>({
     resolver: zodResolver(isEditMode ? editSchema : createSchema)
   });
 
@@ -149,10 +150,12 @@ export const EmployeeModal = ({ isOpen, onClose, employeeToEdit, onSuccess }: Em
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Office *</label>
-                <select {...register("officeId")} className="w-full border border-gray-300 rounded-md p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                  <option value="">Select Office...</option>
-                  {offices?.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-                </select>
+                <SearchableSelect 
+                  groupedOptions={groupOfficesByDivision(offices)}
+                  value={selectedOfficeId || ''}
+                  onChange={(val) => setValue('officeId', val, { shouldValidate: true })}
+                  placeholder="Select Office..."
+                />
                 {errors.officeId && <p className="text-red-500 text-xs mt-1">{errors.officeId.message as string}</p>}
               </div>
               <div>
@@ -190,7 +193,7 @@ export const EmployeeModal = ({ isOpen, onClose, employeeToEdit, onSuccess }: Em
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <i className="fas fa-circle-notch fa-spin"></i>
                 <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
               </>
             ) : (

@@ -3,7 +3,6 @@ import { PageHeader } from '../components/shared/PageHeader';
 import { LoadingSpinner } from '../components/shared/LoadingSpinner';
 import { EmptyState } from '../components/shared/EmptyState';
 import { DataTable } from '../components/shared/DataTable';
-import { Users, Building, AlertCircle, Paperclip } from 'lucide-react';
 
 export const DashboardPage = () => {
   const { data, loading, error } = useGetDashboardStats();
@@ -12,10 +11,10 @@ export const DashboardPage = () => {
   if (error || !data) return <EmptyState message={error?.message || 'Failed to load dashboard'} />;
 
   const statCards = [
-    { label: 'Total Employees', value: data.totalEmployees, icon: Users, color: '#4e73df', border: 'border-[#4e73df]' },
-    { label: 'Total Offices', value: data.totalOffices, icon: Building, color: '#36b9cc', border: 'border-[#36b9cc]' },
-    { label: 'Vacant Seats', value: data.totalVacantSeats, icon: AlertCircle, color: '#e74a3b', border: 'border-[#e74a3b]' },
-    { label: 'On Attachment', value: data.currentlyAttachedCount, icon: Paperclip, color: '#f6c23e', border: 'border-[#f6c23e]' },
+    { label: 'Total Employees', value: data.totalEmployees, icon: 'fas fa-users', color: '#4e73df', border: 'border-[#4e73df]' },
+    { label: 'Total Offices', value: data.totalOffices, icon: 'fas fa-building', color: '#36b9cc', border: 'border-[#36b9cc]' },
+    { label: 'Vacant Seats', value: data.totalVacantSeats, icon: 'fas fa-exclamation-circle', color: '#e74a3b', border: 'border-[#e74a3b]' },
+    { label: 'On Attachment', value: data.currentlyAttachedCount, icon: 'fas fa-paperclip', color: '#f6c23e', border: 'border-[#f6c23e]' },
   ];
 
   return (
@@ -32,7 +31,7 @@ export const DashboardPage = () => {
               <div className="text-xl font-bold text-[#5a5c69]">{stat.value}</div>
             </div>
             <div>
-              <stat.icon className="text-[#dddfeb] w-8 h-8" />
+              <i className={`${stat.icon} text-[#dddfeb] text-3xl`} />
             </div>
           </div>
         ))}

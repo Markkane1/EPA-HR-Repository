@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { apiService } from '../../infrastructure/api/ApiService';
 import { User, Role } from '../../domain/entities';
+import { PageHeader } from '../components/shared/PageHeader';
+import { useDebounce } from '../hooks/useDebounce';
+import { SearchableSelect } from '../components/shared/SearchableSelect';
 
 // --------------- Confirmation Modal ---------------
 const ConfirmModal = ({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) => (
@@ -104,11 +107,12 @@ const UserFormModal = ({ initial, roles, onSave, onClose, isEdit }: UserFormProp
           </div>
           <div>
             <label className="block text-sm font-bold text-[#858796] mb-1.5">Assign Role</label>
-            <select value={form.roleId} onChange={e => set('roleId', e.target.value)}
-              className="w-full h-[calc(1.5em+0.75rem+2px)] px-[0.75rem] py-[0.375rem] text-[1rem] font-normal text-[#6e707e] bg-white border border-[#d1d3e2] rounded-[0.35rem] outline-none focus:border-[#bac8f3] focus:ring focus:ring-[rgba(78,115,223,0.25)] transition-colors">
-              <option value="">— No Role —</option>
-              {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </select>
+            <SearchableSelect 
+              options={roles.map(r => ({ value: r.id, label: r.name }))}
+              value={form.roleId || ''}
+              onChange={val => set('roleId', val)}
+              placeholder="— No Role —"
+            />
           </div>
           <div>
             <label className="block text-sm font-bold text-[#858796] mb-1.5">Status</label>
@@ -138,7 +142,9 @@ export const UserManagementPage = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
   const [filterRole, setFilterRole] = useState('');
+  const [sortBy, setSortBy] = useState('name_asc');
   const [showCreate, setShowCreate] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
@@ -182,13 +188,23 @@ export const UserManagementPage = () => {
     loadData();
   };
 
-  const filtered = users.filter(u => {
-    const matchesSearch = !searchQuery ||
-      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = !filterRole || u.roleId === filterRole;
-    return matchesSearch && matchesRole;
-  });
+  const filtered = users
+    .filter(u => {
+      const matchesSearch = !debouncedSearch ||
+        u.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        u.email.toLowerCase().includes(debouncedSearch.toLowerCase());
+      const matchesRole = !filterRole || u.roleId === filterRole;
+      return matchesSearch && matchesRole;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name_asc': return a.name.localeCompare(b.name);
+        case 'name_desc': return b.name.localeCompare(a.name);
+        case 'email_asc': return a.email.localeCompare(b.email);
+        case 'status': return a.status.localeCompare(b.status);
+        default: return 0;
+      }
+    });
 
   const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
@@ -209,15 +225,17 @@ export const UserManagementPage = () => {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl text-gray-800 font-normal m-0">User Management</h1>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="inline-block px-3 py-1.5 text-sm font-normal text-white bg-[#4e73df] hover:bg-[#2e59d9] rounded-[0.35rem] shadow-sm transition-colors"
-        >
-          <i className="fas fa-plus fa-sm text-white/50 mr-1"></i> New User
-        </button>
-      </div>
+      <PageHeader 
+        title="User Management"
+        actionButton={
+          <button
+            onClick={() => setShowCreate(true)}
+            className="inline-block px-3 py-1.5 text-sm font-normal text-white bg-[#4e73df] hover:bg-[#2e59d9] rounded-[0.35rem] shadow-sm transition-colors"
+          >
+            <i className="fas fa-plus fa-sm text-white/50 mr-1"></i> New User
+          </button>
+        }
+      />
 
       {error && <div className="bg-red-50 border border-red-200 text-[#e74a3b] text-sm rounded-[0.35rem] px-4 py-3">{error}</div>}
 
@@ -257,6 +275,16 @@ export const UserManagementPage = () => {
               <option value="">All Roles</option>
               {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
             </select>
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="px-4 py-1.5 text-sm bg-gray-100 border-0 rounded-[0.35rem] text-[#6e707e] outline-none focus:ring-0 focus:bg-white focus:border-[#bac8f3] focus:ring-[rgba(78,115,223,0.25)] transition-colors"
+            >
+              <option value="name_asc">Name (A-Z)</option>
+              <option value="name_desc">Name (Z-A)</option>
+              <option value="email_asc">Email (A-Z)</option>
+              <option value="status">Status</option>
+            </select>
           </div>
         </div>
       </div>
@@ -276,7 +304,7 @@ export const UserManagementPage = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-[800px] text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#e3e6f0] bg-gray-50">
                     <th className="px-5 py-3 text-xs font-bold text-[#858796] uppercase tracking-wider">User</th>
@@ -302,7 +330,7 @@ export const UserManagementPage = () => {
                       <td className="px-5 py-3">
                         {user.role ? (
                           <div className="flex items-center gap-1.5">
-                            <i className="fas fa-shield-alt text-[#36b9cc]"></i>
+                            <i className="fas fa-shield-alt text-[#4e73df]"></i>
                             <span className="text-sm font-bold text-[#5a5c69]">{user.role.name}</span>
                             {user.role.isSystemRole && (
                               <span className="text-[0.65rem] bg-[#f6c23e] text-white px-2 py-0.5 rounded uppercase font-bold">System</span>

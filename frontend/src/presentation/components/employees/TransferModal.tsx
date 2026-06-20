@@ -6,7 +6,8 @@ import { useGetOffices } from '../../../application/usecases/useGetOffices';
 import { useGetOffice } from '../../../application/usecases/useGetOffice';
 import { useRecordTransfer } from '../../../application/usecases/useRecordTransfer';
 import { Modal } from '../shared/Modal';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { SearchableSelect } from '../shared/SearchableSelect';
+import { groupOfficesByDivision } from '../../../domain/constants/punjabDivisions';
 
 const schema = z.object({
   officeId: z.string().min(1, "Office is required"),
@@ -31,7 +32,7 @@ export const TransferModal = ({ isOpen, onClose, employeeId, onSuccess }: Transf
   const { data: offices } = useGetOffices();
   const { execute, loading: submitLoading, error: submitError } = useRecordTransfer();
 
-  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<FormData>({
+  const { register, handleSubmit, watch, formState: { errors }, reset, setValue } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       effectiveFrom: new Date().toISOString().split('T')[0]
@@ -80,10 +81,12 @@ export const TransferModal = ({ isOpen, onClose, employeeId, onSuccess }: Transf
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">New Office *</label>
-              <select {...register("officeId")} className="w-full border border-gray-300 rounded-md p-2">
-                <option value="">Select Office...</option>
-                {offices?.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-              </select>
+              <SearchableSelect 
+                groupedOptions={groupOfficesByDivision(offices)}
+                value={selectedOfficeId || ''}
+                onChange={(val) => setValue('officeId', val, { shouldValidate: true })}
+                placeholder="Select Office..."
+              />
               {errors.officeId && <p className="text-red-500 text-xs mt-1">{errors.officeId.message}</p>}
             </div>
 
@@ -138,12 +141,12 @@ export const TransferModal = ({ isOpen, onClose, employeeId, onSuccess }: Transf
             >
               {submitLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <i className="fas fa-circle-notch fa-spin"></i>
                   <span>Processing...</span>
                 </>
               ) : showSuccess ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4" />
+                  <i className="fas fa-check-circle"></i>
                   <span>Transferred!</span>
                 </>
               ) : (

@@ -8,6 +8,8 @@ import { DataTable } from '../components/shared/DataTable';
 import { Pagination } from '../components/shared/Pagination';
 import { OfficeModal } from '../components/offices/OfficeModal';
 import { Link } from 'react-router-dom';
+import { useDebounce } from '../hooks/useDebounce';
+import { ALL_DIVISIONS, getDivisionForDistrict } from '../../domain/constants/punjabDivisions';
 
 export const OfficeListPage = () => {
   const { data, loading, error, mutate } = useGetDashboardStats();
@@ -15,24 +17,36 @@ export const OfficeListPage = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [divisionFilter, setDivisionFilter] = useState('');
+  const [sortBy, setSortBy] = useState('name_asc');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [officeToEdit, setOfficeToEdit] = useState<any | null>(null);
   const itemsPerPage = 12;
 
-  // Simple debounce
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  useState(() => {
-    const handler = setTimeout(() => setDebouncedSearch(searchTerm), 300);
-    return () => clearTimeout(handler);
-  });
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
   if (loading) return <LoadingSpinner />;
   if (error || !data) return <EmptyState message={error?.message || 'Failed to load offices'} />;
 
-  const filteredOffices = data.allOffices.filter(stat => {
-    const term = debouncedSearch.toLowerCase();
-    return stat.office.name.toLowerCase().includes(term) || stat.office.district.toLowerCase().includes(term);
-  });
+  const filteredOffices = data.allOffices
+    .filter(stat => {
+      const term = debouncedSearch.toLowerCase();
+      const matchesSearch = stat.office.name.toLowerCase().includes(term) || stat.office.district.toLowerCase().includes(term);
+      const officeDiv = getDivisionForDistrict(stat.office.district);
+      const matchesDivision = !divisionFilter || officeDiv === divisionFilter;
+      return matchesSearch && matchesDivision;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name_asc': return a.office.name.localeCompare(b.office.name);
+        case 'name_desc': return b.office.name.localeCompare(a.office.name);
+        case 'district_asc': return a.office.district.localeCompare(b.office.district);
+        case 'district_desc': return b.office.district.localeCompare(a.office.district);
+        case 'sanctioned_desc': return b.totalSeats - a.totalSeats;
+        case 'vacant_desc': return b.vacantSeats - a.vacantSeats;
+        default: return 0;
+      }
+    });
 
   const paginatedOffices = viewMode === 'grid' 
     ? filteredOffices.slice((page - 1) * itemsPerPage, page * itemsPerPage)
@@ -86,20 +100,49 @@ export const OfficeListPage = () => {
       {/* Search Card */}
       <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">
         <div className="p-4">
-          <div className="relative flex w-full flex-wrap items-stretch">
-            <div className="flex -mr-px">
-              <span className="flex items-center px-4 py-1.5 text-sm bg-gray-100 border-0 rounded-l-[0.35rem]"><i className="fas fa-search text-[#858796]"></i></span>
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1 flex flex-wrap items-stretch">
+              <div className="flex -mr-px">
+                <span className="flex items-center px-4 py-1.5 text-sm bg-gray-100 border-0 rounded-l-[0.35rem]"><i className="fas fa-search text-[#858796]"></i></span>
+              </div>
+              <input 
+                type="text" 
+                className="flex-auto w-[1%] bg-gray-100 border-0 rounded-r-[0.35rem] px-4 py-1.5 text-sm text-[#6e707e] outline-none focus:ring-0 focus:bg-white focus:border-[#bac8f3] focus:ring-[rgba(78,115,223,0.25)] transition-colors" 
+                placeholder="Search offices by name or district..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
+              />
             </div>
-            <input 
-              type="text" 
-              className="flex-auto w-[1%] bg-gray-100 border-0 rounded-r-[0.35rem] px-4 py-1.5 text-sm text-[#6e707e] outline-none focus:ring-0 focus:bg-white focus:border-[#bac8f3] focus:ring-[rgba(78,115,223,0.25)] transition-colors" 
-              placeholder="Search offices by name or district..."
-              value={searchTerm}
+            <select
+              value={divisionFilter}
               onChange={(e) => {
-                setSearchTerm(e.target.value);
+                setDivisionFilter(e.target.value);
                 setPage(1);
               }}
-            />
+              className="w-full md:w-auto px-4 py-1.5 text-sm bg-gray-100 border-0 rounded-[0.35rem] text-[#6e707e] outline-none focus:ring-0 focus:bg-white focus:border-[#bac8f3] focus:ring-[rgba(78,115,223,0.25)] transition-colors"
+            >
+              <option value="">All Divisions</option>
+              {ALL_DIVISIONS.map(div => <option key={div} value={div}>{div}</option>)}
+              <option value="Other">Other</option>
+            </select>
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setPage(1);
+              }}
+              className="w-full md:w-auto px-4 py-1.5 text-sm bg-gray-100 border-0 rounded-[0.35rem] text-[#6e707e] outline-none focus:ring-0 focus:bg-white focus:border-[#bac8f3] focus:ring-[rgba(78,115,223,0.25)] transition-colors"
+            >
+              <option value="name_asc">Sort by Name (A-Z)</option>
+              <option value="name_desc">Sort by Name (Z-A)</option>
+              <option value="district_asc">Sort by District (A-Z)</option>
+              <option value="district_desc">Sort by District (Z-A)</option>
+              <option value="sanctioned_desc">Sanctioned Seats (High-Low)</option>
+              <option value="vacant_desc">Vacant Seats (High-Low)</option>
+            </select>
           </div>
         </div>
       </div>
@@ -110,18 +153,18 @@ export const OfficeListPage = () => {
             {paginatedOffices.map((stat) => (
               <div key={stat.office.id} className="h-full">
                 <Link to={`/offices/${stat.office.id}`} className="no-underline h-full block">
-                  <div className="bg-white rounded-[0.35rem] shadow-sm hover:shadow-[0_0.5rem_1rem_rgba(0,0,0,0.15)] transition-shadow h-full border-l-[0.25rem] border-[#36b9cc] py-2">
+                  <div className="bg-white rounded-[0.35rem] shadow-sm hover:shadow-[0_0.5rem_1rem_rgba(0,0,0,0.15)] transition-shadow h-full border-l-[0.25rem] border-[#4e73df] py-2">
                     <div className="p-5">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center flex-1 min-w-0 mr-2">
                           <div className="mr-3 flex-shrink-0">
-                            <div className="bg-[#36b9cc] text-white shadow-sm w-10 h-10 rounded-full flex items-center justify-center">
+                            <div className="bg-[#4e73df] text-white shadow-sm w-10 h-10 rounded-full flex items-center justify-center">
                               <i className="fas fa-building"></i>
                             </div>
                           </div>
                           <div className="flex-1 min-w-0">
                             <h5 className="font-bold text-gray-900 mb-1 truncate" title={stat.office.name}>{stat.office.name}</h5>
-                            <span className="inline-block py-1 px-2 rounded font-bold text-[75%] leading-none text-center whitespace-nowrap bg-[#36b9cc] text-white uppercase">{stat.office.type}</span>
+                            <span className="inline-block py-1 px-2 rounded font-bold text-[75%] leading-none text-center whitespace-nowrap bg-[#4e73df] text-white uppercase">{stat.office.type}</span>
                           </div>
                         </div>
                         {isAdmin && (
@@ -180,7 +223,7 @@ export const OfficeListPage = () => {
                 { key: 'name', label: 'Office', width: '30%', render: (_, row) => (
                   <div>
                     <Link to={`/offices/${row.office.id}`} className="font-bold text-[#4e73df] block truncate">{row.office.name}</Link>
-                    <span className="inline-block py-1 px-2 rounded font-bold text-[75%] leading-none text-center whitespace-nowrap bg-[#36b9cc] text-white mt-1">{row.office.type}</span>
+                    <span className="inline-block py-1 px-2 rounded font-bold text-[75%] leading-none text-center whitespace-nowrap bg-[#4e73df] text-white mt-1">{row.office.type}</span>
                   </div>
                 )},
                 { key: 'district', label: 'District / Location', width: '22%', render: (_, row) => (

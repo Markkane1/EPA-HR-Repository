@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { apiService } from '../../infrastructure/api/ApiService';
 import { ALL_PERMISSIONS, PERMISSION_LABELS, Permission, Role } from '../../domain/entities';
+import { PageHeader } from '../components/shared/PageHeader';
+import { useDebounce } from '../hooks/useDebounce';
 
 // --------------- Confirmation Modal ---------------
 const ConfirmModal = ({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) => (
@@ -94,7 +96,7 @@ const RoleForm = ({ initial, onSave, onCancel }: RoleFormProps) => {
               <div className="bg-gray-50 px-4 py-2 border-b border-[#e3e6f0]">
                 <span className="text-xs font-bold text-[#858796] uppercase tracking-wider">{category}</span>
               </div>
-              <div className="p-3 grid grid-cols-2 gap-2">
+              <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {ps.map(p => (
                   <label key={p} className={`flex items-center gap-2.5 p-2 rounded cursor-pointer transition-colors hover:bg-gray-50 ${perms.has(p) ? 'bg-blue-50' : ''}`}>
                     <div
@@ -136,6 +138,8 @@ export const RoleManagementPage = () => {
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [deletingRole, setDeletingRole] = useState<Role | null>(null);
   const [expandedRole, setExpandedRole] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
   const loadRoles = async () => {
     try {
@@ -171,6 +175,10 @@ export const RoleManagementPage = () => {
     loadRoles();
   };
 
+  const filteredRoles = roles.filter(role => 
+    !debouncedSearch || role.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+  );
+
   return (
     <div className="space-y-6 pb-6">
       {deletingRole && (
@@ -182,17 +190,35 @@ export const RoleManagementPage = () => {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl text-gray-800 font-normal m-0">Role Management</h1>
-        <button
-          onClick={() => { setShowCreate(true); setEditingRole(null); }}
-          className="inline-block px-3 py-1.5 text-sm font-normal text-white bg-[#4e73df] hover:bg-[#2e59d9] rounded-[0.35rem] shadow-sm transition-colors"
-        >
-          <i className="fas fa-plus fa-sm text-white/50 mr-1"></i> New Role
-        </button>
-      </div>
+      <PageHeader 
+        title="Role Management"
+        actionButton={
+          <button
+            onClick={() => { setShowCreate(true); setEditingRole(null); }}
+            className="inline-block px-3 py-1.5 text-sm font-normal text-white bg-[#4e73df] hover:bg-[#2e59d9] rounded-[0.35rem] shadow-sm transition-colors"
+          >
+            <i className="fas fa-plus fa-sm text-white/50 mr-1"></i> New Role
+          </button>
+        }
+      />
 
       {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-[0.35rem] px-4 py-3">{error}</div>}
+
+      {/* Search Input */}
+      <div className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] mb-6">
+        <div className="p-4">
+          <div className="relative">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#858796]"><i className="fas fa-search"></i></span>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              placeholder="Search roles by name..."
+              className="w-full pl-10 pr-4 py-1.5 text-sm bg-gray-100 border-0 rounded-[0.35rem] text-[#6e707e] outline-none focus:ring-0 focus:bg-white focus:border-[#bac8f3] focus:ring-[rgba(78,115,223,0.25)] transition-colors"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Create Form */}
       {showCreate && (
@@ -213,7 +239,7 @@ export const RoleManagementPage = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {roles.map(role => (
+          {filteredRoles.map(role => (
             <div key={role.id} className="bg-white rounded-[0.35rem] shadow-[0_0.15rem_1.75rem_0_rgba(58,59,69,0.15)] overflow-hidden">
               {editingRole?.id === role.id ? (
                 <div className="p-5 border-l-[0.25rem] border-[#f6c23e]">
@@ -284,11 +310,11 @@ export const RoleManagementPage = () => {
               )}
             </div>
           ))}
-          {roles.length === 0 && (
+          {filteredRoles.length === 0 && (
             <div className="text-center py-16 text-[#858796]">
               <i className="fas fa-shield-alt text-4xl mb-3 opacity-30"></i>
               <p className="font-bold">No roles found</p>
-              <p className="text-sm">Create your first role to get started</p>
+              <p className="text-sm">Create your first role to get started, or adjust your search.</p>
             </div>
           )}
         </div>

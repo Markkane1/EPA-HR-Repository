@@ -14,6 +14,7 @@ const allNavLinks: NavLink[] = [
   { name: 'Dashboard',       path: '/',                faIcon: 'fas fa-fw fa-tachometer-alt', permission: 'dashboard.read' },
   { name: 'Employees',       path: '/employees',       faIcon: 'fas fa-fw fa-users',          permission: 'employees.read' },
   { name: 'Offices',         path: '/offices',         faIcon: 'fas fa-fw fa-building',       permission: 'offices.read' },
+  { name: 'Reports',         path: '/reports',         faIcon: 'fas fa-fw fa-chart-bar',      permission: 'dashboard.read' },
   { name: 'User Management', path: '/settings/users',  faIcon: 'fas fa-fw fa-user-cog',       permission: 'users.read',  section: 'Settings' },
   { name: 'Role Management', path: '/settings/roles',  faIcon: 'fas fa-fw fa-shield-alt',     permission: 'roles.write', section: 'Settings' },
 ];
@@ -22,7 +23,7 @@ export const MainLayout = () => {
   const location = useLocation();
   const { currentUser, hasPermission, logout } = useAuthContext();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const visibleLinks = allNavLinks.filter(link => !link.permission || hasPermission(link.permission));
@@ -57,11 +58,16 @@ export const MainLayout = () => {
     return (
       <li key={link.name} className="relative">
         <Link 
-          className={`flex items-center gap-3 px-4 py-3 mx-2 rounded-md transition-colors ${active ? 'bg-white/10 text-white font-bold' : 'text-white/80 hover:text-white hover:bg-white/5'}`} 
+          onClick={() => {
+            if (window.innerWidth < 768) {
+              setSidebarOpen(false);
+            }
+          }}
+          className={`flex ${sidebarOpen ? 'flex-row items-center gap-3 px-4 py-3' : 'flex-col items-center justify-center gap-1 px-2 py-3'} mx-2 rounded-md transition-colors ${active ? 'bg-white/10 text-white font-bold' : 'text-white/80 hover:text-white hover:bg-white/5'}`} 
           to={link.path}
         >
-          <i className={`${link.faIcon} w-5 text-center ${active ? 'text-white' : 'text-white/70'}`}></i>
-          <span className="text-sm">{link.name}</span>
+          <i className={`${link.faIcon} text-center ${sidebarOpen ? 'w-5 text-base' : 'text-lg'} ${active ? 'text-white' : 'text-white/70'}`}></i>
+          <span className={`${sidebarOpen ? 'text-sm' : 'text-[0.65rem] text-center w-full leading-tight'}`}>{link.name}</span>
         </Link>
       </li>
     );
@@ -70,9 +76,20 @@ export const MainLayout = () => {
   return (
     <div className="flex w-full min-h-screen bg-[#f8f9fc] font-sans text-[#858796]">
 
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* ========== SIDEBAR ========== */}
       <div 
-        className={`bg-gradient-to-b from-[#4e73df] to-[#224abe] flex-shrink-0 flex-col transition-all duration-300 ease-in-out z-20 ${sidebarOpen ? 'w-[14rem] flex' : 'hidden md:flex w-[6.5rem]'}`}
+        className={`bg-gradient-to-b from-[#4e73df] to-[#224abe] flex-shrink-0 flex-col transition-all duration-300 ease-in-out z-30
+          fixed md:relative inset-y-0 left-0 h-full
+          ${sidebarOpen ? 'w-[14rem] translate-x-0 flex' : '-translate-x-full md:translate-x-0 w-[14rem] md:w-[6.5rem] hidden md:flex'}
+        `}
       >
         {/* Sidebar Brand */}
         <Link
